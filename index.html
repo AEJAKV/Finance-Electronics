@@ -412,18 +412,31 @@ body{padding-bottom:104px}
 .deck-card{
   position:absolute;inset:0;border-radius:var(--radius-sm);overflow:hidden;
   background:#fff;
-  transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s cubic-bezier(.22,.8,.3,1),
-             box-shadow .45s ease,filter .45s ease;
+  transition:transform .5s cubic-bezier(.22,.8,.3,1),opacity .5s cubic-bezier(.22,.8,.3,1),
+             box-shadow .5s ease,filter .5s ease;
   will-change:transform,opacity;
+  /* fallback for any card deeper than the four fanned slots: parked at the
+     back of the fan and invisible, so it can never sit on top of the front
+     card the way an unstyled data-pos used to */
+  transform:translate(48px,-33px) scale(.83);opacity:0;z-index:0;
 }
-.deck-card img{width:100%;height:100%;object-fit:cover}
+.deck-card img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
 
-/* fanned resting positions */
-.deck-card[data-pos="0"]{transform:none;                                   opacity:1;   z-index:3;box-shadow:0 26px 54px -18px rgba(70,45,15,.55),0 0 0 1px rgba(255,255,255,.7)}
-.deck-card[data-pos="1"]{transform:translate(24px,-16px) scale(.92) rotate(4deg); opacity:.96; z-index:2;box-shadow:0 18px 38px -14px rgba(70,45,15,.5),0 0 0 1px rgba(194,65,12,.16);filter:saturate(.92) brightness(.965)}
-.deck-card[data-pos="2"]{transform:translate(46px,-30px) scale(.85) rotate(8deg); opacity:.92; z-index:1;box-shadow:0 14px 30px -12px rgba(70,45,15,.45),0 0 0 1px rgba(194,65,12,.14);filter:saturate(.84) brightness(.93)}
-/* the outgoing card: lift, tilt right, then drop behind */
-.deck-card.is-leaving{transform:translate(150px,10px) scale(.72) rotate(15deg);opacity:0;z-index:4}
+/* fanned resting positions — one slot per cover (4), evenly stepped so the
+   whole deck reads as four distinct pages rather than a blur at the back */
+.deck-card[data-pos="0"]{transform:none;                                       opacity:1;   z-index:4;box-shadow:0 26px 54px -18px rgba(70,45,15,.55),0 0 0 1px rgba(255,255,255,.7)}
+.deck-card[data-pos="1"]{transform:translate(16px,-11px) scale(.945) rotate(2.5deg);opacity:.97; z-index:3;box-shadow:0 20px 42px -15px rgba(70,45,15,.52),0 0 0 1px rgba(194,65,12,.16);filter:saturate(.94) brightness(.975)}
+.deck-card[data-pos="2"]{transform:translate(32px,-22px) scale(.89) rotate(5deg);  opacity:.93; z-index:2;box-shadow:0 16px 34px -13px rgba(70,45,15,.48),0 0 0 1px rgba(194,65,12,.15);filter:saturate(.88) brightness(.95)}
+.deck-card[data-pos="3"]{transform:translate(48px,-33px) scale(.835) rotate(7.5deg);opacity:.88; z-index:1;box-shadow:0 13px 28px -12px rgba(70,45,15,.44),0 0 0 1px rgba(194,65,12,.13);filter:saturate(.82) brightness(.925)}
+/* the outgoing card: lift, tilt right, fly off — must clear every slot */
+.deck-card.is-leaving{transform:translate(150px,10px) scale(.72) rotate(15deg);opacity:0;z-index:6}
+/* the recycled card, already teleported to the rear slot: held invisible for
+   one frame so it fades into the back of the fan instead of popping in */
+.deck-card.is-returning{opacity:0}
+/* used for the one frame where a card is teleported to the far side of the
+   fan (front card recycled to the back, or a back card staged off-screen
+   before it flies in) — without it the teleport would animate */
+.deck-card.no-anim{transition:none}
 
 .deck-ph{
   width:100%;height:100%;display:flex;flex-direction:column;
@@ -438,9 +451,11 @@ body{padding-bottom:104px}
 
 /* rotated VIP sticker, breaking out of the deck's corner */
 /* breaks out of the deck's TOP-left corner — the bottom-left corner
-   collides with the dots and the "View..." pill below the deck */
+   collides with the dots and the "View..." pill below the deck.
+   It straddles the corner rather than sitting inside it: the covers put
+   their own masthead in that top strip, and the sticker used to cover it */
 .deck-sticker{
-  position:absolute;z-index:5;left:-30px;top:20px;
+  position:absolute;z-index:5;left:-38px;top:-30px;
   display:grid;place-items:center;width:96px;height:96px;border-radius:999px;
   background:var(--accent);color:var(--ink);
   transform:rotate(-14deg);
@@ -451,7 +466,7 @@ body{padding-bottom:104px}
 .deck-sticker b{display:block;font-family:var(--display);font-size:1.45rem;font-weight:700;letter-spacing:0}
 /* on narrow screens pull the sticker back inside so it isn't clipped */
 @media(max-width:560px){
-  .deck-sticker{left:-6px;top:10px;width:78px;height:78px;font-size:.8rem}
+  .deck-sticker{left:-14px;top:-18px;width:78px;height:78px;font-size:.8rem}
   .deck-sticker b{font-size:1.2rem}
 }
 
@@ -482,7 +497,7 @@ body{padding-bottom:104px}
 
 @media(prefers-reduced-motion:reduce){
   /* cross-fade only: no rotation, no flight */
-  .deck-card[data-pos="1"],.deck-card[data-pos="2"]{transform:none;opacity:0}
+  .deck-card:not([data-pos="0"]){transform:none;opacity:0}
   .deck-card.is-leaving{transform:none;opacity:0}
 }
 
@@ -1105,9 +1120,14 @@ const CATALOG = [
    `jump` is the section the "View these offers" dot scrolls to.
    ============================================================ */
 const COVERS = [
-  { src:"", alt:"Summer Exclusive Tech Offers catalog cover", label:"Summer Exclusive Tech Offers", file:"catalog-1.jpg", jump:"tech"    },
-  { src:"", alt:"Summer Special — Hello Summer catalog cover", label:"Summer Special — Hello Summer", file:"catalog-2.jpg", jump:"special" },
-  { src:"", alt:"New Summer Bundle catalog cover",             label:"New Summer Bundle",             file:"catalog-3.jpg", jump:"bundle"  }
+  /* *-card.webp are 1020x1320 web copies of the print-resolution originals
+     sitting beside them. The originals are 30-megapixel, 4.6 MB in total for
+     four covers shown at 340 CSS px; these are 1020px (3x the card, so still
+     retina-sharp) and ~940 KB in total. The originals stay on disk. */
+  { src:"images/4-hero-image/summer-exclusive-tech-card.webp", alt:"Summer Exclusive Tech Offers catalog cover", label:"Summer Exclusive Tech Offers", file:"catalog-1.jpg", jump:"tech"    },
+  { src:"images/4-hero-image/summer-special-card.webp",        alt:"Summer Special — Hello Summer catalog cover", label:"Summer Special — Hello Summer", file:"catalog-2.jpg", jump:"special" },
+  { src:"images/4-hero-image/summer-bundle-1-card.webp",       alt:"New Summer Bundle catalog cover, page 1 of 2", label:"New Summer Bundle",             file:"catalog-3.jpg", jump:"bundle"  },
+  { src:"images/4-hero-image/summer-bundle-2-card.webp",       alt:"New Summer Bundle catalog cover, page 2 of 2", label:"New Summer Bundle — Page 2",    file:"catalog-4.jpg", jump:"bundle"  }
 ];
 
 const CURRENCY = "CAD";
@@ -1485,8 +1505,15 @@ let order = COVERS.map((_,i) => i);
 let swapping = false;
 
 function coverHTML(c, i){
+  // The artwork is letter-ratio, the same as the card, so object-fit has
+  // nothing to crop — object-position keeps the masthead safe if a future
+  // cover is a few pixels off. The front cover is the LCP image.
+  // decoding="sync", NOT "async": async lets the card paint before its cover
+  // has decoded, which shows a blank white card — briefly on load, and on
+  // every swap as a card is brought forward.
   const inner = c.src
-    ? `<img src="${c.src}" alt="${c.alt}">`
+    ? `<img src="${c.src}" alt="${c.alt}" width="1020" height="1320"
+            decoding="sync" ${i === 0 ? 'fetchpriority="high"' : ""}>`
     : `<div class="deck-ph">
          <span class="n">${i+1}</span>
          <span class="l">${c.label}</span>
@@ -1496,27 +1523,66 @@ function coverHTML(c, i){
   return inner;
 }
 
-function renderDeck(){
-  deck.innerHTML = order.map((idx,pos) => {
-    const c = COVERS[idx];
-    // only the front card is exposed to assistive tech
-    return `<div class="deck-card" data-pos="${pos}" data-idx="${idx}"
-                 ${pos ? 'aria-hidden="true"' : `role="img" aria-label="${c.alt}"`}>
-              ${coverHTML(c, idx)}
-            </div>`;
-  }).join("");
+/* The cards are built ONCE and then only ever have their data-pos rewritten.
+   Rebuilding the deck with innerHTML on every change (what this used to do)
+   handed the browser brand-new nodes each time, so the CSS transitions on
+   .deck-card never had an old value to animate from — every card except the
+   outgoing one teleported into place. */
+let cards = [];
+const SWAP_MS = 500;                      // must match the .deck-card transition
+
+function buildDeck(){
+  deck.innerHTML = COVERS.map((c,i) =>
+    `<div class="deck-card" data-idx="${i}">${coverHTML(c, i)}</div>`).join("");
+  cards = COVERS.map((_,i) => deck.querySelector(`[data-idx="${i}"]`));
 
   deckDots.innerHTML = COVERS.map((c,i) =>
-    `<button type="button" data-dot="${i}" aria-current="${order[0]===i}"
-             aria-label="Show ${c.label}"></button>`).join("");
+    `<button type="button" data-dot="${i}" aria-label="Show ${c.label}"></button>`).join("");
+}
 
-  const front = COVERS[order[0]];
+/* place every card in its fan slot; only the front one is exposed to AT */
+function layout(){
+  order.forEach((idx,pos) => {
+    const card = cards[idx];
+    card.dataset.pos = pos;
+    if(pos){
+      card.setAttribute("aria-hidden","true");
+      card.removeAttribute("role");
+      card.removeAttribute("aria-label");
+    } else {
+      card.removeAttribute("aria-hidden");
+      card.setAttribute("role","img");
+      card.setAttribute("aria-label", COVERS[idx].alt);
+    }
+  });
+}
+
+/* dots, jump link and the live region always describe the front card */
+function syncDeckChrome(){
+  const i = order[0], front = COVERS[i];
+  deckDots.querySelectorAll("[data-dot]").forEach(b =>
+    b.setAttribute("aria-current", String(+b.dataset.dot === i)));
+
   deckJump.href = `#${front.jump}`;
   deckJump.textContent = `View ${front.label}`;
 
-  deckLive.textContent = `Showing catalog ${order[0]+1} of ${COVERS.length}: ${front.label}`;
+  deckLive.textContent = `Showing catalog ${i+1} of ${COVERS.length}: ${front.label}`;
   deck.setAttribute("aria-label",
-    `${COVERS[order[0]].label}. Catalog ${order[0]+1} of ${COVERS.length}. Press Enter or use the arrow keys for the next catalog.`);
+    `${front.label}. Catalog ${i+1} of ${COVERS.length}. Press Enter or use the arrow keys for the next catalog.`);
+}
+
+function renderDeck(){ buildDeck(); layout(); syncDeckChrome(); }
+
+/* Run fn once the browser has committed the current styles, so the next
+   change transitions instead of collapsing into the same frame. The timer is
+   not belt-and-braces: rAF is paused entirely while the tab is in the
+   background, and a swap caught mid-flight there would otherwise leave
+   `swapping` true and the deck frozen for good. */
+function afterPaint(fn){
+  let done = false;
+  const run = () => { if(!done){ done = true; fn(); } };
+  requestAnimationFrame(() => requestAnimationFrame(run));
+  setTimeout(run, 60);
 }
 
 function advance(dir = 1){
@@ -1525,30 +1591,64 @@ function advance(dir = 1){
   if(reduceMotion){                       // cross-fade, no flight
     order = dir > 0 ? [...order.slice(1), order[0]]
                     : [order[order.length-1], ...order.slice(0,-1)];
-    renderDeck();
+    layout(); syncDeckChrome();
     return;
   }
 
   swapping = true;
+
   if(dir > 0){
-    const front = deck.querySelector('[data-pos="0"]');
-    front.classList.add("is-leaving");     // lift, tilt right, drop back
+    // front card flies off to the right while the other three slide forward,
+    // then it is teleported (unanimated, still invisible) to the back slot
+    const leavingIdx = order[0], leaving = cards[leavingIdx];
+    leaving.classList.add("is-leaving");
+    order = [...order.slice(1), leavingIdx];
+    layout();                             // is-leaving outranks its data-pos
+    syncDeckChrome();
     setTimeout(() => {
-      order = [...order.slice(1), order[0]];
-      renderDeck();
-      swapping = false;
-    }, 450);
+      leaving.classList.add("no-anim","is-returning");
+      leaving.classList.remove("is-leaving");
+      void leaving.offsetWidth;             // commit the teleport un-animated
+      leaving.classList.remove("no-anim");
+      afterPaint(() => {                    // now let it fade into the rear slot
+        leaving.classList.remove("is-returning");
+        swapping = false;
+      });
+    }, SWAP_MS);
   } else {
-    order = [order[order.length-1], ...order.slice(0,-1)];
-    renderDeck();
-    setTimeout(() => { swapping = false; }, 450);
+    // the back card is staged off to the right, then flies back in on top
+    const incomingIdx = order[order.length-1], incoming = cards[incomingIdx];
+    incoming.classList.add("no-anim","is-leaving");
+    void incoming.offsetWidth;            // commit the staged position
+    incoming.classList.remove("no-anim");
+    order = [incomingIdx, ...order.slice(0,-1)];
+    layout();
+    syncDeckChrome();
+    afterPaint(() => incoming.classList.remove("is-leaving"));
+    setTimeout(() => { swapping = false; }, SWAP_MS);
   }
 }
 
+/* dots: step through one card at a time so the fan animates the whole way
+   instead of snapping, picking whichever direction is the shorter trip */
 function jumpTo(i){
   if(swapping || order[0] === i) return;
-  while(order[0] !== i) order = [...order.slice(1), order[0]];
-  renderDeck();
+
+  if(reduceMotion){
+    while(order[0] !== i) order = [...order.slice(1), order[0]];
+    layout(); syncDeckChrome();
+    return;
+  }
+
+  const steps = order.indexOf(i);
+  const dir = steps <= COVERS.length / 2 ? 1 : -1;
+  // order is updated synchronously by advance(), so re-reading it is enough
+  // to know whether we have arrived — a dropped step just reschedules itself
+  const step = () => {
+    advance(dir);
+    if(order[0] !== i) setTimeout(step, SWAP_MS + 60);
+  };
+  step();
 }
 
 deck.addEventListener("click", () => advance(1));
@@ -1559,7 +1659,10 @@ deck.addEventListener("keydown", e => {
 });
 deckDots.addEventListener("click", e => {
   const b = e.target.closest("[data-dot]");
-  if(b) jumpTo(+b.dataset.dot);
+  if(!b) return;
+  stopAutoplay();          // don't let the timer fight a multi-step jump
+  jumpTo(+b.dataset.dot);
+  startAutoplay();
 });
 
 /* horizontal swipe on touch */
@@ -1571,10 +1674,31 @@ deck.addEventListener("touchend", e => {
   if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) advance(dx < 0 ? 1 : -1);
 }, {passive:true});
 
+/* auto-advance every 4s, looping through all covers forever (order is a
+   rotation, so it never runs out). Paused on hover/focus so it doesn't
+   fight a visitor mid-interaction, and while the tab is hidden. */
+let autoplayTimer = null;
+function startAutoplay(){
+  if(reduceMotion || COVERS.length < 2) return;
+  stopAutoplay();
+  autoplayTimer = setInterval(() => advance(1), 4000);
+}
+function stopAutoplay(){
+  if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
+}
+deck.addEventListener("mouseenter", stopAutoplay);
+deck.addEventListener("mouseleave", startAutoplay);
+deck.addEventListener("focusin", stopAutoplay);
+deck.addEventListener("focusout", startAutoplay);
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden) stopAutoplay(); else startAutoplay();
+});
+
 /* ---------- go ---------- */
 renderDeck();
 renderCatalog();
 syncAll();
+startAutoplay();
 
 </script>
 </body>
