@@ -183,7 +183,7 @@ button{font:inherit}
 }
 
 /* ---- logo ---- */
-.brand{position:relative;z-index:1;display:flex;align-items:center;min-height:var(--tap);text-decoration:none}
+.brand{position:relative;z-index:1;flex:none;display:flex;align-items:center;min-height:var(--tap);text-decoration:none}
 .brand img{
   height:clamp(30px,5.6vw,42px);width:auto;
   filter:drop-shadow(0 1px 2px rgba(70,45,15,.18));
@@ -207,6 +207,18 @@ button{font:inherit}
     0 8px 18px -12px rgba(70,45,15,.55);
 }
 .header-note svg{flex:none;width:16px;height:16px;color:var(--accent-deep)}
+/* Smallest phones: the VIP pill is nowrap, so it has to give up the
+   letter-spacing rather than squeeze the logo out of the bar. */
+@media (max-width:400px){
+  .header-note{font-size:.76rem;letter-spacing:.04em;padding:0 .7rem;gap:.35rem}
+  .header-note svg{width:14px;height:14px}
+}
+/* Under ~360px the pill cannot hold "VIP SPECIAL ACCESS" on one line
+   beside the logo. Wrapping to two lines keeps the full wording at a
+   legible size instead of shrinking the type into the unreadable. */
+@media (max-width:360px){
+  .header-note{white-space:normal;text-align:center;line-height:1.15;padding:.35rem .6rem}
+}
 
 /* ============================================================
    FLOATING CART  (lower right, all viewports)
@@ -509,6 +521,15 @@ body{padding-bottom:104px}
   color:var(--accent-deep);font-weight:700;font-size:1rem;white-space:nowrap;
 }
 .grid{display:grid;gap:1.4rem;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+/* Phones and small tablets always get two cards per row. auto-fill with a
+   300px floor collapses to a single column below ~622px, which left one
+   giant card per screen; an explicit two-track rule is predictable at every
+   width. Everything inside the card is sized with clamp() from here down,
+   so the pair scales smoothly from a 320px phone to a 660px tablet rather
+   than stepping at fixed breakpoints. */
+@media (max-width:660px){
+  .grid{gap:.8rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 
 .card{
   position:relative;display:flex;flex-direction:column;overflow:hidden;
@@ -584,13 +605,6 @@ body{padding-bottom:104px}
 .bundle-item-box .media-placeholder{padding:.35rem .2rem;font-size:.8rem}
 .bundle-item-box .media-placeholder .ico{width:24px;height:24px;margin-bottom:.28rem}
 .bundle-item-box .media-placeholder code{font-size:.74rem;word-break:break-all}
-@media (max-width:430px){
-  :root{--bundle-gap:22px;--bundle-plus:34px}
-  .bundle-plus{font-size:1.25rem;border-width:3px}
-  .card-media.is-bundle{padding:3.2rem .6rem .6rem}
-  .bundle-item-box{padding:.55rem .4rem;border-radius:12px}
-  .bundle-item-name{font-size:.78rem}
-}
 .badge{
   position:absolute;top:.9rem;left:.9rem;z-index:2;
   padding:.35rem .8rem;border-radius:999px;
@@ -657,6 +671,57 @@ body{padding-bottom:104px}
 }
 .stepper button:hover{background:rgba(11,107,65,.12)}
 .stepper .qty{min-width:34px;text-align:center;font-weight:700;font-size:1.1rem}
+
+/* ============================================================
+   COMPACT CARD  —  two-up on phones
+   Every value is a clamp() against the viewport, so a card at
+   133px wide (320px phone) and one at 233px (520px phone) both
+   read correctly without a stack of breakpoints. Tap targets
+   stay on the --tap floor: only widths shrink, never heights.
+   ============================================================ */
+@media (max-width:560px){
+  .card-body{
+    padding:clamp(.6rem,2.6vw,.95rem) clamp(.65rem,2.8vw,1rem) clamp(.85rem,3vw,1.15rem);
+    gap:.22rem;
+  }
+  .card-body h3{font-size:clamp(.95rem,3.7vw,1.18rem);line-height:1.25}
+  .card-desc{
+    font-size:clamp(.8rem,3vw,.96rem);line-height:1.4;
+    /* three lines keeps every card in a row the same height */
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .price-row{gap:.15rem .4rem;margin-top:.5rem}
+  .price{font-size:clamp(1.12rem,4.6vw,1.5rem)}
+  .price-per{font-size:clamp(.8rem,2.9vw,.98rem)}
+  .price-from,.price-was,.price-note{font-size:clamp(.76rem,2.8vw,.95rem)}
+  .badge{top:.5rem;left:.5rem;padding:.24rem .58rem;font-size:clamp(.72rem,2.8vw,.9rem)}
+
+  /* stacked so the stepper and the confirm button each get the
+     full card width instead of fighting over one row */
+  .card-actions{margin-top:.75rem;flex-direction:column;align-items:stretch;gap:.4rem}
+  .add-btn{font-size:clamp(.85rem,3.3vw,1.02rem);gap:.35rem;border-radius:12px;padding:0 .4rem}
+  .add-btn .ico{width:18px;height:18px}
+  /* below this the label needs the icon's width to stay on one line */
+  @media (max-width:359px){.add-btn .ico{display:none}}
+  .stepper{justify-content:space-between;border-radius:12px}
+  .stepper button{width:clamp(38px,12vw,46px)}
+  .stepper .qty{min-width:26px;font-size:1.05rem}
+
+  /* a bundle still has to fit two product boxes plus the seam
+     badge inside half a phone screen */
+  :root{--bundle-gap:12px;--bundle-plus:26px}
+  .bundle-plus{font-size:1.05rem;border-width:3px}
+  /* 4:3 leaves the two product boxes too short once the badge
+     clearance is taken out, so squares them up at this size */
+  .card-media.is-bundle{aspect-ratio:1/1;padding:2.3rem .45rem .5rem}
+  .bundle-item-box{padding:.4rem .3rem;border-radius:10px;gap:.3rem}
+  .bundle-item-name{font-size:clamp(.62rem,2.4vw,.78rem);min-height:2.4em}
+  .bundle-item-box .media-placeholder{padding:.25rem .15rem;font-size:clamp(.6rem,2.3vw,.74rem)}
+  .bundle-item-box .media-placeholder .ico{width:18px;height:18px;margin-bottom:.2rem}
+  .bundle-item-box .media-placeholder code{font-size:.62rem}
+  .media-placeholder{font-size:clamp(.76rem,2.9vw,.95rem);padding:.5rem}
+  .media-placeholder .ico{width:28px;height:28px;margin-bottom:.3rem}
+}
 
 /* ============================================================
    CART DRAWER
