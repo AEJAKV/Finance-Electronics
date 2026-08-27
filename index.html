@@ -311,6 +311,14 @@ body{padding-bottom:104px}
   -webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
           mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
 }
+/* Portrait crop of the same scene for the stacked layout. The
+   landscape file cover-crops to a narrow vertical slice on a phone,
+   throwing away both rows of palms; this one is framed for it.
+   Same 899px breakpoint as the stacked grid, so the artwork and the
+   layout switch together. */
+@media (max-width:899px){
+  .hero-bg{background:url("images/bg-for-mobile.webp") center 35%/cover no-repeat}
+}
 /* Left shade. Stops are set so the copy column — which runs out
    to roughly 51% of the viewport at its widest line — never sits
    on less than ~.47 black. Clear by 78%, so the catalog deck
@@ -348,8 +356,6 @@ body{padding-bottom:104px}
 .hero h1{color:#FFFDF7}
 .hero .scribble{color:#8FF0BE}
 .hero .hero-copy p.lede{color:#FFFDF7}
-.hero .trust{color:#FFFDF7}
-.hero .tick{color:#8FF0BE}
 
 /* the one green word in the headline */
 .scribble{white-space:nowrap;color:var(--brand)}
@@ -395,10 +401,7 @@ body{padding-bottom:104px}
 }
 .btn-ghost:hover{transform:translateY(-2px);box-shadow:0 18px 36px -12px rgba(6,95,70,.9),inset 0 1px 0 rgba(255,255,255,.48),inset 0 -1px 0 rgba(2,44,32,.3)}
 
-.trust{display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;margin-top:1.7rem;font-size:1rem;font-weight:600;color:var(--ink-soft)}
-.trust span{display:inline-flex;align-items:center;gap:.45rem}
 .tick{color:var(--brand);font-weight:700;display:inline-flex}
-.tick svg{width:17px;height:17px}
 
 /* ============================================================
    CATALOG DECK  —  fanned stack of covers, click to advance
@@ -492,21 +495,10 @@ body{padding-bottom:104px}
 }
 .deck-jump:hover{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.72));transform:translateY(-2px)}
 
-.deck-hint{
-  font-size:1rem;font-weight:600;color:var(--ink-soft);
-  display:inline-flex;align-items:center;gap:.45rem;
-  transition:opacity .4s ease;
-}
-.deck-hint[hidden]{display:none}
-.deck-hint.gone{opacity:0}
-@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
-.deck-hint svg{width:18px;height:18px;color:var(--accent-deep);animation:nudge 1.7s ease-in-out infinite}
-
 @media(prefers-reduced-motion:reduce){
   /* cross-fade only: no rotation, no flight */
   .deck-card[data-pos="1"],.deck-card[data-pos="2"]{transform:none;opacity:0}
   .deck-card.is-leaving{transform:none;opacity:0}
-  .deck-hint svg{animation:none}
 }
 
 /* ============================================================
@@ -902,18 +894,11 @@ body.drawer-open{overflow:hidden}
     <div class="hero-grid">
 
       <div class="hero-copy">
-        <h1>Three catalogs.<br>One weekly
-          <span class="scribble">payment</span>.
-        </h1>
-        <p class="lede">25 items — phones, laptops, coolers, camping gear — on payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies. <strong>Ends September 15, 2026.</strong></p>
+        <h1>You're <span class="scribble">Preapproved</span><br>on Any One or more of these Items</h1>
+        <p class="lede">25 items — phones, laptops, coolers, camping gear — on payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#tech">See all 25 items</a>
           <button class="btn btn-ghost" id="heroCart" type="button">View my list</button>
-        </div>
-        <div class="trust">
-          <span><span class="tick" id="tickA"></span> Nothing charged on this page</span>
-          <span><span class="tick" id="tickB"></span> An agent confirms by email</span>
-          <span><span class="tick" id="tickC"></span> 9–12 month finance period</span>
         </div>
       </div>
 
@@ -923,10 +908,6 @@ body.drawer-open{overflow:hidden}
         <button class="deck" id="deck" aria-label="Catalog covers. Press Enter or use the arrow keys to see the next catalog."></button>
         <div class="deck-dots" id="deckDots" role="group" aria-label="Choose a catalog"></div>
         <a class="deck-jump" id="deckJump" href="#tech">View these offers</a>
-        <p class="deck-hint" id="deckHint">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          Tap to see the next catalog
-        </p>
         <p class="sr-only" id="deckLive" aria-live="polite"></p>
       </div>
 
@@ -1516,10 +1497,10 @@ el("#leadForm").addEventListener("submit", e => {
    Order is a plain array rotation — no library, no index maths
    scattered around. order[0] is always the front card.
    ============================================================ */
-const deck = el("#deck"), deckDots = el("#deckDots"), deckHint = el("#deckHint"),
+const deck = el("#deck"), deckDots = el("#deckDots"),
       deckLive = el("#deckLive"), deckJump = el("#deckJump");
 let order = COVERS.map((_,i) => i);
-let swapping = false, deckTouched = false;
+let swapping = false;
 
 function coverHTML(c, i){
   const inner = c.src
@@ -1558,7 +1539,6 @@ function renderDeck(){
 
 function advance(dir = 1){
   if(swapping || COVERS.length < 2) return;
-  dismissHint();
 
   if(reduceMotion){                       // cross-fade, no flight
     order = dir > 0 ? [...order.slice(1), order[0]]
@@ -1585,16 +1565,8 @@ function advance(dir = 1){
 
 function jumpTo(i){
   if(swapping || order[0] === i) return;
-  dismissHint();
   while(order[0] !== i) order = [...order.slice(1), order[0]];
   renderDeck();
-}
-
-function dismissHint(){
-  if(deckTouched) return;
-  deckTouched = true;
-  deckHint.classList.add("gone");
-  setTimeout(() => { deckHint.hidden = true; }, 450);
 }
 
 deck.addEventListener("click", () => advance(1));
@@ -1622,8 +1594,6 @@ renderDeck();
 renderCatalog();
 syncAll();
 
-/* hero trust ticks */
-[el("#tickA"),el("#tickB"),el("#tickC")].forEach(n => { if(n) n.innerHTML = ICONS.check; });
 </script>
 </body>
 </html>
