@@ -25,13 +25,14 @@
    ============================================================ */
 :root{
   /* --- brand palette — green carries trust, orange carries action ---
-     Measured contrast (see the table in the redesign brief):
-       #FFF on #0B6B41 .......... 6.58  ✓ green buttons
-       #1B1205 on #F97316 ....... 6.60  ✓ orange buttons (near-black text)
-       #FFF on #F97316 .......... 2.80  ✗ never
-       #C2410C on cream ......... 5.01  ✓ orange TEXT only at this value    */
-  --brand:            #0B6B41;   /* deep green — primary, links, headings     */
-  --brand-deep:       #065F46;   /* darker green — hover, emphasis            */
+     Vibrant "Get Cash Now" brand green (was a deep teal-green).
+     Measured contrast:
+       #FFF on #15803D ....... 5.02  ✓ green buttons (dominant fill)
+       #15803D on cream ...... 5.15  ✓ green TEXT
+       #1B1205 on #F97316 .... 6.60  ✓ orange buttons (near-black text)
+       #FFF on #F97316 ....... 2.80  ✗ never                                */
+  --brand:            #16A34A;   /* vibrant green — accents, links, headings  */
+  --brand-deep:       #15803D;   /* darker green — hover, emphasis, text      */
   --accent:           #F97316;   /* summer orange — CTA fills, badges         */
   --accent-deep:      #C2410C;   /* dark orange — orange TEXT on light        */
   --ink:              #1B1205;   /* warm near-black body text                 */
@@ -47,7 +48,7 @@
   --glass:            rgba(255,255,255,.78);
   --glass-strong:     rgba(255,255,255,.9);
   --glass-line:       rgba(255,255,255,.9);
-  --glass-edge:       rgba(11,107,65,.16);
+  --glass-edge:       rgba(22,163,74,.16);
   --blur:             18px;
   --shadow:           0 10px 30px -12px rgba(70,45,15,.26);
   --shadow-lg:        0 24px 60px -20px rgba(70,45,15,.34);
@@ -231,19 +232,16 @@ button{font:inherit}
   bottom:calc(clamp(16px,3.5vw,32px) + env(safe-area-inset-bottom));
   display:inline-flex;align-items:center;gap:.7rem;
   height:66px;padding:0 1.5rem 0 1.25rem;
-  border:1px solid rgba(255,255,255,.34);border-radius:999px;cursor:pointer;
-  -webkit-backdrop-filter:blur(18px) saturate(180%);
-  backdrop-filter:blur(18px) saturate(180%);
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.02) 55%,rgba(255,255,255,0)),
-    linear-gradient(140deg,rgba(11,107,65,.97),rgba(6,95,70,.95));
+  border:none;border-radius:999px;cursor:pointer;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
   color:#fff;text-align:left;
-  box-shadow:0 18px 38px -12px rgba(6,95,70,.6),0 4px 12px -4px rgba(70,45,15,.35),
-             inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(2,44,32,.3);
+  box-shadow:0 18px 34px -10px rgba(21,128,61,.55),0 4px 12px -4px rgba(70,45,15,.3),
+             inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(20,83,45,.25);
   transition:transform .22s cubic-bezier(.34,1.3,.64,1),box-shadow .22s ease,
              padding .28s cubic-bezier(.34,1.3,.64,1),width .28s cubic-bezier(.34,1.3,.64,1);
 }
-.cart-fab:hover{transform:translateY(-3px);box-shadow:0 24px 46px -12px rgba(6,95,70,.68),0 6px 14px -4px rgba(70,45,15,.4)}
+.cart-fab:hover{transform:translateY(-3px);box-shadow:0 22px 42px -10px rgba(21,128,61,.65),0 6px 14px -4px rgba(70,45,15,.35)}
 .cart-fab:active{transform:translateY(-1px)}
 
 .fab-icon{display:grid;place-items:center;width:30px;height:30px;flex:none}
@@ -295,70 +293,59 @@ body{padding-bottom:104px}
 }
 
 /* ---- summer photo backdrop --------------------------------
-   The photo runs clean. Readability comes from one black
-   gradient panel on the left — a background layer, not a
-   text-shadow — so the type stays crisp-edged.
-     .hero-bg      z-3  the photo
-     .hero::after  z-2  the left shade
-     .hero::before z-1  the sun-glow arc (below)
-   Both photo and shade share the same bottom mask and run
-   full-bleed to the top edge — no vertical ramp, so there is
-   no visible band anywhere along the section.               */
+   The photo itself fades out across the copy column instead of
+   carrying an overlay, so the type sits on the page's own cream
+   washes and keeps the site's normal dark ink. Two mask layers
+   intersected: a horizontal fade that thins the artwork on the
+   left, and the fixed 70px bottom fade that dissolves it into
+   the scallop divider at any hero height.                     */
 .hero-bg{
   position:absolute;z-index:-3;pointer-events:none;
   top:-150px;right:0;bottom:0;left:0;
   background:url("images/bg.webp") center 38%/cover no-repeat;
-  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.13) 24%,rgba(0,0,0,.30) 42%,rgba(0,0,0,.72) 56%,#000 66%),
+    linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
+          mask-image:
+    linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.13) 24%,rgba(0,0,0,.30) 42%,rgba(0,0,0,.72) 56%,#000 66%),
+    linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
+  -webkit-mask-composite:source-in;   /* legacy WebKit keyword for intersect */
+          mask-composite:intersect;
 }
-/* Portrait crop of the same scene for the stacked layout. The
-   landscape file cover-crops to a narrow vertical slice on a phone,
-   throwing away both rows of palms; this one is framed for it.
-   Same 899px breakpoint as the stacked grid, so the artwork and the
-   layout switch together. */
+/* Portrait crop of the same scene for the stacked layout, and the
+   fade turns vertical — the copy spans the full width there, so it
+   thins the artwork at the top and lets it come up to full strength
+   behind the catalog deck. One layer, so no compositing needed.
+   Same 899px breakpoint as the stacked grid, so the artwork, the
+   fade direction and the layout all switch together. */
 @media (max-width:899px){
-  .hero-bg{background:url("images/bg-for-mobile.webp") center 35%/cover no-repeat}
-}
-/* Left shade. Stops are set so the copy column — which runs out
-   to roughly 51% of the viewport at its widest line — never sits
-   on less than ~.47 black. Clear by 78%, so the catalog deck
-   sits on untouched artwork. The bottom mask is a fixed 70px
-   fade so it lands on the scallop divider at any hero height. */
-.hero::after{
-  content:"";position:absolute;z-index:-2;pointer-events:none;
-  top:-150px;right:0;bottom:0;left:0;
-  background:linear-gradient(90deg,
-    rgba(0,0,0,.74) 0%,
-    rgba(0,0,0,.68) 26%,
-    rgba(0,0,0,.54) 42%,
-    rgba(0,0,0,.34) 55%,
-    rgba(0,0,0,.12) 68%,
-    rgba(0,0,0,0)   78%);
-  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
-}
-/* Stacked layout: the copy spans the full width, so the shade
-   turns vertical and clears before the deck. */
-@media(max-width:899px){
-  .hero::after{
-    background:linear-gradient(180deg,
-      rgba(0,0,0,.68) 0%,
-      rgba(0,0,0,.62) 36%,
-      rgba(0,0,0,.28) 52%,
-      rgba(0,0,0,0)   64%);
+  .hero-bg{
+    background:url("images/bg-for-mobile.webp") center 35%/cover no-repeat;
+    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.16) 34%,rgba(0,0,0,.62) 52%,#000 64%,#000 calc(100% - 70px),transparent 100%);
+            mask-image:linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.16) 34%,rgba(0,0,0,.62) 52%,#000 64%,#000 calc(100% - 70px),transparent 100%);
+    -webkit-mask-composite:source-over;
+            mask-composite:add;
   }
 }
-
-/* ---- hero copy on the shade -------------------------------
-   Solid light type, no text-shadows — the shade carries the
-   contrast. The deck side keeps the page's normal dark ink,
-   since nothing shades it and the artwork there is light.   */
-.hero h1{color:#FFFDF7}
-.hero .scribble{color:#8FF0BE}
-.hero .hero-copy p.lede{color:#FFFDF7}
+/* ---- hero copy on the faded side --------------------------
+   Back to the page's own ink on cream, so no text-shadows and
+   no light-on-dark palette are needed. The lede keeps its
+   regular weight and tighter leading. */
+.hero .hero-copy p.lede{
+  font-weight:400;      /* regular — 500 read as bold at this size */
+  line-height:1.45;     /* tighter than the 1.65 body default */
+}
 
 /* the one green word in the headline */
 .scribble{white-space:nowrap;color:var(--brand)}
+/* orange brand-gradient phrase in the headline, with a solid fallback
+   for browsers without background-clip:text so it's never invisible */
+.scribble-orange{
+  color:#EA580C;
+  background:linear-gradient(135deg,#FB923C 0%,#F97316 50%,#EA580C 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
 .hero p.lede{font-size:clamp(1.12rem,1.7vw,1.32rem);color:var(--ink-soft);max-width:46ch;font-weight:500;margin-top:1.1rem}
 .hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.7rem}
 
@@ -378,28 +365,26 @@ body{padding-bottom:104px}
   backdrop-filter:blur(16px) saturate(180%);
   transition:transform .18s cubic-bezier(.34,1.2,.64,1),box-shadow .18s ease,background .18s ease;
 }
-/* Orange glass NEVER carries white text — near-black is the pairing */
+/* Solid orange, white bold label, soft colored shadow */
 .btn-primary{
-  border:1px solid rgba(255,255,255,.5);color:var(--ink);
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,.05) 55%,rgba(255,255,255,0)),
-    linear-gradient(180deg,rgba(249,115,22,.97),rgba(234,88,12,.94));
-  box-shadow:0 12px 28px -12px rgba(194,65,12,.75),
-             inset 0 1px 0 rgba(255,255,255,.6),
-             inset 0 -1px 0 rgba(124,45,18,.22);
+  border:none;color:#fff;border-radius:16px;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,#FB923C 0%,#F97316 45%,#EA580C 100%);
+  box-shadow:0 14px 28px -10px rgba(194,65,12,.55),
+             inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -2px 0 rgba(124,45,18,.25);
 }
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 36px -12px rgba(194,65,12,.85),inset 0 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(124,45,18,.22)}
-/* Green glass keeps a restrained sheen so white text stays legible */
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px -10px rgba(194,65,12,.65),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(124,45,18,.25)}
+/* Solid brand green, white bold label, soft colored shadow */
 .btn-ghost{
-  border:1px solid rgba(255,255,255,.34);color:#fff;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.02) 55%,rgba(255,255,255,0)),
-    linear-gradient(180deg,rgba(11,107,65,.97),rgba(6,95,70,.95));
-  box-shadow:0 12px 28px -12px rgba(6,95,70,.8),
-             inset 0 1px 0 rgba(255,255,255,.38),
-             inset 0 -1px 0 rgba(2,44,32,.3);
+  border:none;color:#fff;border-radius:16px;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
+  box-shadow:0 14px 28px -10px rgba(21,128,61,.55),
+             inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -2px 0 rgba(20,83,45,.25);
 }
-.btn-ghost:hover{transform:translateY(-2px);box-shadow:0 18px 36px -12px rgba(6,95,70,.9),inset 0 1px 0 rgba(255,255,255,.48),inset 0 -1px 0 rgba(2,44,32,.3)}
+.btn-ghost:hover{transform:translateY(-2px);box-shadow:0 18px 34px -10px rgba(21,128,61,.65),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(20,83,45,.25)}
 
 .tick{color:var(--brand);font-weight:700;display:inline-flex}
 
@@ -532,10 +517,16 @@ body{padding-bottom:104px}
 
 .card-media{
   position:relative;aspect-ratio:4/3;background:
-    linear-gradient(135deg,rgba(11,107,65,.10),rgba(249,115,22,.14));
+    linear-gradient(135deg,rgba(22,163,74,.10),rgba(249,115,22,.14));
   display:grid;place-items:center;overflow:hidden;
 }
 .card-media img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+/* The product photography is square (1254x1254). In the 4:3 well,
+   `cover` lopped a quarter off the top and bottom of every shot, so
+   cards carrying a real photo square their media up and the image
+   lands edge to edge uncropped. Placeholder cards keep 4:3, and
+   bundles are excluded — they size their own well. */
+.card-media:not(.is-bundle):has(img){aspect-ratio:1/1}
 .card:hover .card-media img{transform:scale(1.04)}
 .media-placeholder{text-align:center;color:var(--brand-deep);font-weight:700;font-size:1rem;padding:1rem;opacity:.62}
 .media-placeholder .ico{width:40px;height:40px;display:block;margin:0 auto .45rem;stroke-width:1.5}
@@ -618,33 +609,28 @@ body{padding-bottom:104px}
 .section-fineprint{margin:1.3rem 0 0;font-size:1rem;line-height:1.55;color:var(--ink-soft);font-weight:500}
 
 .card-actions{margin-top:1rem;display:flex;gap:.6rem;align-items:center}
-/* Action = orange fill, near-black text (6.60:1).
-   Confirmed = green fill, white text (6.58:1). Never white on #F97316. */
+/* Action = solid orange fill, white text.
+   Confirmed = green fill, white text (6.58:1). */
 .add-btn{
-  flex:1;min-height:var(--tap);border:1px solid rgba(255,255,255,.5);border-radius:14px;cursor:pointer;
-  color:var(--ink);font-weight:700;font-size:1.06rem;
+  flex:1;min-height:var(--tap);border:none;border-radius:14px;cursor:pointer;
+  color:#fff;font-weight:700;font-size:1.06rem;
   display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
-  -webkit-backdrop-filter:blur(14px) saturate(180%);
-  backdrop-filter:blur(14px) saturate(180%);
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,.05) 55%,rgba(255,255,255,0)),
-    linear-gradient(180deg,rgba(249,115,22,.97),rgba(234,88,12,.94));
-  box-shadow:0 10px 22px -12px rgba(194,65,12,.7),
-             inset 0 1px 0 rgba(255,255,255,.6),
-             inset 0 -1px 0 rgba(124,45,18,.22);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,#FB923C 0%,#F97316 45%,#EA580C 100%);
+  box-shadow:0 10px 20px -8px rgba(194,65,12,.5),
+             inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -2px 0 rgba(124,45,18,.25);
   transition:transform .16s cubic-bezier(.34,1.2,.64,1),box-shadow .16s ease;
 }
-.add-btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(194,65,12,.8),inset 0 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(124,45,18,.22)}
+.add-btn:hover{transform:translateY(-2px);box-shadow:0 14px 26px -8px rgba(194,65,12,.6),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(124,45,18,.25)}
 .add-btn:active{transform:translateY(0)}
-/* confirmed state: green glass, white label */
+/* confirmed state: solid brand green, white label */
 .add-btn.added{
-  border-color:rgba(255,255,255,.34);color:#fff;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.02) 55%,rgba(255,255,255,0)),
-    linear-gradient(180deg,rgba(11,107,65,.97),rgba(6,95,70,.95));
-  box-shadow:0 10px 22px -12px rgba(6,95,70,.75),
-             inset 0 1px 0 rgba(255,255,255,.38),
-             inset 0 -1px 0 rgba(2,44,32,.3);
+  border:none;color:#fff;
+  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
+  box-shadow:0 10px 20px -8px rgba(21,128,61,.5),
+             inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -2px 0 rgba(20,83,45,.25);
 }
 .add-btn .ico{width:21px;height:21px;flex:none}
 
@@ -661,7 +647,7 @@ body{padding-bottom:104px}
   background:transparent;color:var(--brand-deep);font-size:1.4rem;font-weight:700;line-height:1;
   transition:background .14s ease;
 }
-.stepper button:hover{background:rgba(11,107,65,.12)}
+.stepper button:hover{background:rgba(22,163,74,.12)}
 .stepper .qty{min-width:34px;text-align:center;font-weight:700;font-size:1.1rem}
 
 /* ============================================================
@@ -731,7 +717,7 @@ body{padding-bottom:104px}
   transform:translateX(102%);transition:transform .3s cubic-bezier(.22,.8,.3,1);
 }
 .drawer.open{transform:none}
-.drawer-head{display:flex;align-items:center;gap:.8rem;padding:1.2rem 1.3rem;border-bottom:1px solid rgba(11,107,65,.14)}
+.drawer-head{display:flex;align-items:center;gap:.8rem;padding:1.2rem 1.3rem;border-bottom:1px solid rgba(22,163,74,.14)}
 .drawer-head h2{margin:0;font-size:1.45rem}
 .icon-btn{
   margin-left:auto;width:46px;height:46px;border-radius:12px;cursor:pointer;
@@ -749,8 +735,8 @@ body{padding-bottom:104px}
 .empty{text-align:center;padding:3rem 1rem;color:var(--ink-soft)}
 .empty .ico{width:56px;height:56px;display:block;margin:0 auto .8rem;opacity:.4;color:var(--brand-deep)}
 
-.line{display:flex;gap:.85rem;padding:.9rem 0;border-bottom:1px solid rgba(11,107,65,.12)}
-.line-thumb{width:74px;height:74px;border-radius:14px;flex:none;object-fit:cover;background:linear-gradient(135deg,rgba(11,107,65,.14),rgba(249,115,22,.18));display:grid;place-items:center}
+.line{display:flex;gap:.85rem;padding:.9rem 0;border-bottom:1px solid rgba(22,163,74,.12)}
+.line-thumb{width:74px;height:74px;border-radius:14px;flex:none;object-fit:cover;background:linear-gradient(135deg,rgba(22,163,74,.14),rgba(249,115,22,.18));display:grid;place-items:center}
 .line-thumb .ico{width:28px;height:28px;color:var(--brand-deep);opacity:.55;stroke-width:1.6}
 .line-main{flex:1;min-width:0}
 .line-main h4{margin:0 0 .15rem;font-size:1.08rem;font-weight:700;line-height:1.3}
@@ -759,7 +745,7 @@ body{padding-bottom:104px}
 .line-price{margin-left:auto;font-weight:700;color:var(--accent-deep);font-size:1.1rem}
 .remove{border:0;background:none;color:#B3261E;font-weight:700;font-size:1rem;cursor:pointer;padding:.4rem .2rem;text-decoration:underline}
 
-.drawer-foot{padding:1.1rem 1.3rem 1.4rem;border-top:1px solid rgba(11,107,65,.14);background:rgba(255,255,255,.7)}
+.drawer-foot{padding:1.1rem 1.3rem 1.4rem;border-top:1px solid rgba(22,163,74,.14);background:rgba(255,255,255,.7)}
 .total-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.9rem}
 .total-row .label{font-weight:700;font-size:1.1rem}
 .total-row .value{font-weight:700;font-size:1.85rem;color:var(--accent-deep);letter-spacing:-.02em}
@@ -770,29 +756,25 @@ body{padding-bottom:104px}
 .field label{display:block;font-weight:700;font-size:1rem;margin-bottom:.3rem}
 .field input,.field textarea{
   width:100%;min-height:var(--tap);padding:.7rem .9rem;font:inherit;font-size:1.05rem;
-  border:1.5px solid rgba(11,107,65,.28);border-radius:12px;background:rgba(255,255,255,.95);color:var(--ink);
+  border:1.5px solid rgba(22,163,74,.28);border-radius:12px;background:rgba(255,255,255,.95);color:var(--ink);
 }
 .field textarea{min-height:88px;resize:vertical}
 .field input:focus,.field textarea:focus{border-color:var(--brand)}
 .btn-submit{
   width:100%;min-height:58px;border:0;border-radius:16px;cursor:pointer;
-  color:var(--ink);font-weight:700;font-size:1.15rem;
-  border:1px solid rgba(255,255,255,.5);
-  -webkit-backdrop-filter:blur(16px) saturate(180%);
-  backdrop-filter:blur(16px) saturate(180%);
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,.05) 55%,rgba(255,255,255,0)),
-    linear-gradient(180deg,rgba(249,115,22,.97),rgba(234,88,12,.94));
-  box-shadow:0 14px 30px -12px rgba(194,65,12,.8),
-             inset 0 1px 0 rgba(255,255,255,.6),
-             inset 0 -1px 0 rgba(124,45,18,.22);
+  color:#fff;font-weight:700;font-size:1.15rem;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,#FB923C 0%,#F97316 45%,#EA580C 100%);
+  box-shadow:0 14px 28px -10px rgba(194,65,12,.55),
+             inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -2px 0 rgba(124,45,18,.25);
   transition:transform .16s cubic-bezier(.34,1.2,.64,1),box-shadow .16s ease;
 }
-.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 20px 38px -12px rgba(194,65,12,.9),inset 0 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(124,45,18,.22)}
+.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 18px 34px -10px rgba(194,65,12,.65),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(124,45,18,.25)}
 .btn-submit:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .btn-back{
   width:100%;min-height:var(--tap);margin-top:.6rem;border-radius:14px;cursor:pointer;
-  border:1px solid rgba(11,107,65,.24);color:var(--brand-deep);font-weight:700;font-size:1.05rem;
+  border:1px solid rgba(22,163,74,.24);color:var(--brand-deep);font-weight:700;font-size:1.05rem;
   -webkit-backdrop-filter:blur(14px) saturate(170%);
   backdrop-filter:blur(14px) saturate(170%);
   background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.55));
@@ -811,7 +793,7 @@ body{padding-bottom:104px}
 .fly-chip{
   width:100%;height:100%;border-radius:20px;overflow:hidden;
   display:grid;place-items:center;font-size:2rem;
-  background:linear-gradient(135deg,rgba(11,107,65,.18),rgba(249,115,22,.26)),#fff;
+  background:linear-gradient(135deg,rgba(22,163,74,.18),rgba(249,115,22,.26)),#fff;
   box-shadow:0 22px 40px -14px rgba(70,45,15,.55),inset 0 0 0 1px rgba(255,255,255,.8);
   will-change:transform,opacity;
 }
@@ -894,7 +876,7 @@ body.drawer-open{overflow:hidden}
     <div class="hero-grid">
 
       <div class="hero-copy">
-        <h1>You're <span class="scribble">Preapproved</span><br>on Any One or more of these Items</h1>
+        <h1>You're <span class="scribble">Preapproved</span><br>on Any <span class="scribble-orange">one or more</span> of these Items</h1>
         <p class="lede">25 items — phones, laptops, coolers, camping gear — on payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#tech">See all 25 items</a>
@@ -1060,14 +1042,14 @@ const CATALOG = [
     blurb: "Members-only weekly pricing on this season's most-wanted tech. Payments are matched to your pay schedule over a 9–12 month finance period.",
     tag: "Limited quantities",
     items: [
-      { id:"iphone-14",       name:"iPhone 14 — 128GB",              desc:"6.1\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:30.52, per:"weekly", image:"", badge:"Pick 1" },
-      { id:"iphone-14-plus",  name:"iPhone 14 Plus — 128GB",         desc:"6.7\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:34.95, per:"weekly", image:"", badge:"Pick 2" },
-      { id:"iphone-15",       name:"iPhone 15 — 128GB",              desc:"6.1\" Super Retina XDR • A16 Bionic Chip • Excellent Condition",                     price:41.13, per:"weekly", image:"", badge:"Pick 3" },
-      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"", badge:"Pick 4" },
-      { id:"ipad-10th-gen",   name:"Apple iPad 10th Gen — 64GB",     desc:"11\" Liquid Retina Display • A16 Bionic Chip • Wi-Fi • Excellent Condition",         price:43.03, per:"weekly", image:"", badge:"Pick 5" },
-      { id:"airpods-4",       name:"Apple AirPods 4 (ANC)",          desc:"Active Noise Cancellation • Adaptive Audio • Excellent Condition",                   price:9.51,  per:"weekly", image:"", badge:"Pick 6" },
-      { id:"macbook-air-m1",  name:"MacBook Air 13\" (M1 Chip)",     desc:"M1 Chip • 8GB RAM • 256GB SSD • Excellent Condition",                                price:21.23, per:"weekly", image:"", badge:"Pick 7" },
-      { id:"watch-series-9",  name:"Apple Watch Series 9 (GPS) 45mm",desc:"Always-On Retina Display • Health and Fitness Tracking • Excellent Condition",       price:23.74, per:"weekly", image:"", badge:"Pick 8" }
+      { id:"iphone-14",       name:"iPhone 14 — 128GB",              desc:"6.1\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:30.52, per:"weekly", image:"images/premium-tech-images/iphone-14.webp", badge:"Pick 1" },
+      { id:"iphone-14-plus",  name:"iPhone 14 Plus — 128GB",         desc:"6.7\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:34.95, per:"weekly", image:"images/premium-tech-images/iphone-14-plus.webp", badge:"Pick 2" },
+      { id:"iphone-15",       name:"iPhone 15 — 128GB",              desc:"6.1\" Super Retina XDR • A16 Bionic Chip • Excellent Condition",                     price:41.13, per:"weekly", image:"images/premium-tech-images/iphone-15.webp", badge:"Pick 3" },
+      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"images/premium-tech-images/samsung-galaxyzflip-5.webp", badge:"Pick 4" },
+      { id:"ipad-10th-gen",   name:"Apple iPad 10th Gen — 64GB",     desc:"11\" Liquid Retina Display • A16 Bionic Chip • Wi-Fi • Excellent Condition",         price:43.03, per:"weekly", image:"images/premium-tech-images/apple-ipad10th-gen.webp", badge:"Pick 5" },
+      { id:"airpods-4",       name:"Apple AirPods 4 (ANC)",          desc:"Active Noise Cancellation • Adaptive Audio • Excellent Condition",                   price:9.51,  per:"weekly", image:"images/premium-tech-images/apple-airpods4.webp", badge:"Pick 6" },
+      { id:"macbook-air-m1",  name:"MacBook Air 13\" (M1 Chip)",     desc:"M1 Chip • 8GB RAM • 256GB SSD • Excellent Condition",                                price:21.23, per:"weekly", image:"images/premium-tech-images/macbook-air.webp", badge:"Pick 7" },
+      { id:"watch-series-9",  name:"Apple Watch Series 9 (GPS) 45mm",desc:"Always-On Retina Display • Health and Fitness Tracking • Excellent Condition",       price:23.74, per:"weekly", image:"images/premium-tech-images/apple-watch-series.webp", badge:"Pick 8" }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   },
@@ -1077,14 +1059,14 @@ const CATALOG = [
     blurb: "Congratulations, you're preapproved on any ONE of these items. Reserve yours now — payments are matched to your pay schedule over a 9–12 month finance period.",
     tag: "Preapproved — pick any one",
     items: [
-      { id:"evap-air-cooler",   name:"Portable Air Conditioner, Removable Water Tank Evaporative Air Cooler", desc:"2.6Gal Water Tank 3-in-1 Quiet Cooling Fan with Humidification & Timer, Low Energy Swamp Cooler for Bedroom, Office, Home", price:5.49,  per:"weekly", image:"", badge:"Pick 1", from:true },
-      { id:"lg-8000-btu-ac",    name:"LG 8,000 BTU (SACC) Portable Air Conditioner",                          desc:"Ultra Quiet 3-in-1 AC with Remote, LED Display, Auto Evaporation, 24-Hr Timer & Auto Restart, Cools Rooms up to 350 Sq. Ft, White", price:19.33, per:"weekly", image:"", badge:"Pick 2", from:true },
-      { id:"euhomy-12v-fridge", name:"EUHOMY 12 Volt Refrigerator",                                           desc:"11-Quart (10L) Smart Portable Car Fridge & Freezer for Camping, RV & Travel", price:8.36,  per:"weekly", image:"", badge:"Pick 3", from:true },
-      { id:"bougerv-cooler",    name:"BougeRV Electric Cooler",                                                desc:"30-Quart (22L) portable car fridge/freezer with fast cooling, adjustable -8°F to 50°F temperature, quiet 45 dB operation, and AC/DC power compatibility", price:12.51, per:"weekly", image:"", badge:"Pick 4", from:true },
-      { id:"bose-qc-headphones",name:"Bose QuietComfort Headphones",                                           desc:"Wireless Bluetooth Headphones, Active Over-Ear Noise Cancelling and Mic, USB-C Charging, Deep Bass, Up to 24 Hours of Playtime, Black", price:14.54, per:"weekly", image:"", badge:"Pick 5", from:true },
-      { id:"skullcandy-anc-2",  name:"Skullcandy Crusher ANC 2 Noise Cancelling Wireless Headphones",          desc:"Multi-Sensory Crusher Bass, Over-Ear Fit, Bluetooth, 60 Hours Battery, Working Out, Gym, Travel, Studying, Music, Gaming", price:14.59, per:"weekly", image:"", badge:"Pick 6", from:true },
-      { id:"bose-qc-earbuds-blk",name:"Bose QuietComfort Earbuds — Black",                                     desc:"True Wireless Bluetooth Earbuds with Active Noise Cancellation and Mic, USB-C Charging, IPX4 Rating, Up to 8.5 Hours of Playtime, Black", price:12.19, per:"weekly", image:"", badge:"Pick 7", from:true },
-      { id:"bose-qc-earbuds-wht",name:"Bose QuietComfort Earbuds — White (Renewed)",                           desc:"Wireless Bluetooth in-ear headphones with personalized noise cancellation and premium sound (Renewed)", price:12.19, per:"weekly", image:"", badge:"Pick 8", from:true }
+      { id:"evap-air-cooler",   name:"Portable Air Conditioner, Removable Water Tank Evaporative Air Cooler", desc:"2.6Gal Water Tank 3-in-1 Quiet Cooling Fan with Humidification & Timer, Low Energy Swamp Cooler for Bedroom, Office, Home", price:5.49,  per:"weekly", image:"images/summer-special/portable-air-con.webp", badge:"Pick 1", from:true },
+      { id:"lg-8000-btu-ac",    name:"LG 8,000 BTU (SACC) Portable Air Conditioner",                          desc:"Ultra Quiet 3-in-1 AC with Remote, LED Display, Auto Evaporation, 24-Hr Timer & Auto Restart, Cools Rooms up to 350 Sq. Ft, White", price:19.33, per:"weekly", image:"images/summer-special/lg-portable-aircon.webp", badge:"Pick 2", from:true },
+      { id:"euhomy-12v-fridge", name:"EUHOMY 12 Volt Refrigerator",                                           desc:"11-Quart (10L) Smart Portable Car Fridge & Freezer for Camping, RV & Travel", price:8.36,  per:"weekly", image:"images/summer-special/euhomy-volt-refrigerator.webp", badge:"Pick 3", from:true },
+      { id:"bougerv-cooler",    name:"BougeRV Electric Cooler",                                                desc:"30-Quart (22L) portable car fridge/freezer with fast cooling, adjustable -8°F to 50°F temperature, quiet 45 dB operation, and AC/DC power compatibility", price:12.51, per:"weekly", image:"images/summer-special/bougeRV-elec-cooler.webp", badge:"Pick 4", from:true },
+      { id:"bose-qc-headphones",name:"Bose QuietComfort Headphones",                                           desc:"Wireless Bluetooth Headphones, Active Over-Ear Noise Cancelling and Mic, USB-C Charging, Deep Bass, Up to 24 Hours of Playtime, Black", price:14.54, per:"weekly", image:"images/summer-special/bose-head.webp", badge:"Pick 5", from:true },
+      { id:"skullcandy-anc-2",  name:"Skullcandy Crusher ANC 2 Noise Cancelling Wireless Headphones",          desc:"Multi-Sensory Crusher Bass, Over-Ear Fit, Bluetooth, 60 Hours Battery, Working Out, Gym, Travel, Studying, Music, Gaming", price:14.59, per:"weekly", image:"images/summer-special/skullcandy-head.webp", badge:"Pick 6", from:true },
+      { id:"bose-qc-earbuds-blk",name:"Bose QuietComfort Earbuds — Black",                                     desc:"True Wireless Bluetooth Earbuds with Active Noise Cancellation and Mic, USB-C Charging, IPX4 Rating, Up to 8.5 Hours of Playtime, Black", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-black.webp", badge:"Pick 7", from:true },
+      { id:"bose-qc-earbuds-wht",name:"Bose QuietComfort Earbuds — White (Renewed)",                           desc:"Wireless Bluetooth in-ear headphones with personalized noise cancellation and premium sound (Renewed)", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-white.webp", badge:"Pick 8", from:true }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   },
