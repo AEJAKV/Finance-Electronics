@@ -557,18 +557,25 @@ body{padding-bottom:104px}
    .bundle-media so that .bundle-media is exactly the box row — which keeps
    the "+" at top:50% dead centre on the seam despite the asymmetric top pad
    that clears the "Bundle N" pill. */
-.card-media.is-bundle{background:none;padding:3.45rem .9rem .9rem}
+/* No fixed ratio, unlike a single-image well. Two boxes side by side are
+   only about half a card wide, and a `contain`ed square photo can never be
+   taller than that width — so any ratio tall enough to look generous just
+   parked the product in the middle of a column of empty box. Letting the
+   well take its height from the boxes makes every photo as large as its
+   half of the card allows, with no dead space above or below it. */
+.card-media.is-bundle{background:none;padding:3.3rem .7rem .7rem;aspect-ratio:auto}
 .bundle-media{
   position:relative;               /* the "+" positions against this */
   display:flex;align-items:stretch; /* both boxes match height, whatever the caption */
   gap:var(--bundle-gap);
-  width:100%;height:100%;
+  width:100%;
 }
 .bundle-item-box{
+  position:relative;               /* anchors this part's zoom hint */
   flex:1 1 0;                      /* equal width */
   min-width:0;                     /* shrink on mobile instead of stacking */
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:.45rem;padding:.75rem .6rem;
+  gap:.4rem;padding:.55rem .45rem;
   text-align:center;
   background:var(--glass-strong);
   border:1px solid var(--glass-edge);
@@ -577,12 +584,30 @@ body{padding-bottom:104px}
   overflow:hidden;
 }
 .card-media .bundle-item-box img{
-  width:100%;flex:1;min-height:0;
+  /* A square photo box, sized off the box's own width — this is what gives
+     the well its height. flex:none keeps it from being squeezed when one
+     caption wraps to two lines and the other does not. */
+  /* height:auto is load-bearing: the single-image rule above sets
+     height:100%, and an explicit height beats aspect-ratio, which left the
+     photo letterboxed inside a taller box again. */
+  width:100%;height:auto;flex:none;aspect-ratio:1/1;
   object-fit:contain;              /* never crop a product to fill the box */
+  /* the card-wide hover zoom would push a contained product out of its own
+     box, so a bundle part scales from its own centre instead */
+  transform-origin:center;
 }
+/* The whole card lifts on hover; the part image should not also swell inside
+   its box, which is why the shared `.card:hover .card-media img` scale is
+   cancelled here and re-applied only to the part actually being pointed at. */
+.card:hover .card-media .bundle-item-box img{transform:none}
+.card-media .bundle-item-box:hover img{transform:scale(1.06)}
 .bundle-item-name{
-  font-size:.84rem;font-weight:600;line-height:1.25;color:var(--ink-soft);
-  min-height:2.5em;                /* reserve two lines so the pair stays level */
+  font-size:.84rem;font-weight:600;line-height:1.3;color:var(--ink-soft);
+  /* Two clamped lines need 2.6em; the old 2.5em was exactly two lines with
+     nothing to spare, so sub-pixel rounding shaved the descenders off the
+     second one. The extra tenth also keeps a one-line pair level with a
+     two-line pair. */
+  min-height:2.6em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
 /* Sits on the seam, overlapping both boxes. left defaults to the midpoint
@@ -603,6 +628,29 @@ body{padding-bottom:104px}
 .bundle-item-box .media-placeholder{padding:.35rem .2rem;font-size:.8rem}
 .bundle-item-box .media-placeholder .ico{width:24px;height:24px;margin-bottom:.28rem}
 .bundle-item-box .media-placeholder code{font-size:.74rem;word-break:break-all}
+
+/* --- zoomable product art ------------------------------------------
+   Every real product photo opens in the lightbox, so it advertises that
+   with a magnifier cursor and a focus ring for keyboard users. */
+.card-media img.zoomable{cursor:zoom-in}
+.card-media img.zoomable:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.zoom-hint{
+  position:absolute;right:.6rem;bottom:.6rem;z-index:2;
+  width:34px;height:34px;border-radius:50%;
+  background:var(--glass-strong);border:1px solid var(--glass-line);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  display:grid;place-items:center;color:var(--brand-deep);
+  box-shadow:0 4px 12px -6px rgba(70,45,15,.5);
+  opacity:.85;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+}
+.zoom-hint svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.card:hover .zoom-hint{opacity:1;transform:scale(1.08)}
+/* A bundle puts one hint per product box rather than one per card, and pins
+   it to the top corner — the bottom of a box belongs to the caption, whose
+   height moves with the clamped font size. */
+.bundle-item-box .zoom-hint{width:26px;height:26px;right:.28rem;bottom:auto;top:.28rem}
+.bundle-item-box .zoom-hint svg{width:14px;height:14px}
+
 .badge{
   position:absolute;top:.9rem;left:.9rem;z-index:2;
   padding:.35rem .8rem;border-radius:999px;
@@ -704,14 +752,20 @@ body{padding-bottom:104px}
      badge inside half a phone screen */
   :root{--bundle-gap:12px;--bundle-plus:26px}
   .bundle-plus{font-size:1.05rem;border-width:3px}
-  /* 4:3 leaves the two product boxes too short once the badge
-     clearance is taken out, so squares them up at this size */
-  .card-media.is-bundle{aspect-ratio:1/1;padding:2.3rem .45rem .5rem}
+  /* the well still takes its height from the boxes here; only the badge
+     clearance and the side padding tighten up */
+  .card-media.is-bundle{aspect-ratio:auto;padding:2.3rem .45rem .5rem}
   .bundle-item-box{padding:.4rem .3rem;border-radius:10px;gap:.3rem}
-  .bundle-item-name{font-size:clamp(.62rem,2.4vw,.78rem);min-height:2.4em}
+  .bundle-item-name{font-size:clamp(.62rem,2.4vw,.78rem);min-height:2.6em}
   .bundle-item-box .media-placeholder{padding:.25rem .15rem;font-size:clamp(.6rem,2.3vw,.74rem)}
   .bundle-item-box .media-placeholder .ico{width:18px;height:18px;margin-bottom:.2rem}
   .bundle-item-box .media-placeholder code{font-size:.62rem}
+  /* two cards to a phone screen leaves a bundle box about 70px wide — the
+     magnifier has to shrink with it or it covers the product */
+  .zoom-hint{width:28px;height:28px;right:.4rem;bottom:.4rem}
+  .zoom-hint svg{width:15px;height:15px}
+  .bundle-item-box .zoom-hint{width:20px;height:20px;right:.18rem;top:.18rem}
+  .bundle-item-box .zoom-hint svg{width:11px;height:11px}
   .media-placeholder{font-size:clamp(.76rem,2.9vw,.95rem);padding:.5rem}
   .media-placeholder .ico{width:28px;height:28px;margin-bottom:.3rem}
 }
@@ -751,8 +805,16 @@ body{padding-bottom:104px}
 .empty .ico{width:56px;height:56px;display:block;margin:0 auto .8rem;opacity:.4;color:var(--brand-deep)}
 
 .line{display:flex;gap:.85rem;padding:.9rem 0;border-bottom:1px solid rgba(22,163,74,.12)}
-.line-thumb{width:74px;height:74px;border-radius:14px;flex:none;object-fit:cover;background:linear-gradient(135deg,rgba(22,163,74,.14),rgba(249,115,22,.18));display:grid;place-items:center}
+/* Always a wrapper, never a bare <img>, so a one-product tile and a bundle's
+   two-product tile are the same kind of box. */
+.line-thumb{width:74px;height:74px;border-radius:14px;flex:none;overflow:hidden;background:linear-gradient(135deg,rgba(22,163,74,.14),rgba(249,115,22,.18));display:grid;place-items:center}
+.line-thumb>img{width:100%;height:100%;object-fit:cover}
 .line-thumb .ico{width:28px;height:28px;color:var(--brand-deep);opacity:.55;stroke-width:1.6}
+/* A bundle's tile is short and wide instead of square: one square cell per
+   product, so both halves of the line's title are actually pictured. The
+   column count and width are inline from thumbSpec(); the height is the cell
+   plus its padding, which leaves no slack around the photos. */
+.line-thumb.is-pair{width:auto;height:58px;align-self:center;padding:3px;gap:4px;place-items:stretch}
 .line-main{flex:1;min-width:0}
 .line-main h4{margin:0 0 .15rem;font-size:1.08rem;font-weight:700;line-height:1.3}
 .line-sub{font-size:1rem;color:var(--ink-soft);margin:0 0 .5rem}
@@ -814,6 +876,15 @@ body{padding-bottom:104px}
 }
 .fly-chip img{width:100%;height:100%;object-fit:cover}
 .fly-chip .ico{width:42%;height:42%;color:var(--brand-deep);stroke-width:1.7}
+/* A bundle throws a ghost of both products, matching the card it left. */
+.fly-chip.is-pair{padding:5px;gap:5px;place-items:stretch}
+
+/* Shared by both tiles: a product sits contained on white rather than
+   cropped edge to edge, the way it does in the card's own bundle boxes. */
+.line-thumb.is-pair img,.fly-chip.is-pair img{
+  width:100%;height:100%;min-width:0;
+  object-fit:contain;background:#fff;border-radius:9px;
+}
 
 /* the cart catches it */
 .cart-fab::after{
@@ -848,6 +919,63 @@ body{padding-bottom:104px}
 }
 .toast.show{transform:translate(-50%,0);visibility:visible}
 .toast .tick{color:var(--accent)}
+
+/* ============================================================
+   IMAGE LIGHTBOX
+   ------------------------------------------------------------
+   Tapping any product photo — a whole-card shot or one half of a
+   bundle — blows it up here. It sits above the drawer (z-index 90)
+   and the toast (100) so it can also be opened from a card that is
+   behind the open cart.
+   ============================================================ */
+.lightbox{
+  position:fixed;inset:0;z-index:130;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;padding:clamp(1rem,4vw,2.5rem);
+  background:rgba(27,18,5,.82);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+.lightbox.open{opacity:1;visibility:visible}
+.lb-figure{
+  margin:0;display:flex;flex-direction:column;align-items:center;gap:.9rem;
+  max-width:min(900px,100%);max-height:100%;
+}
+.lb-figure img{
+  display:block;
+  max-width:100%;
+  /* leave room for the caption and the close button no matter the viewport.
+     dvh so a phone's retracting address bar does not crop the photo. */
+  max-height:calc(100vh - 12rem);
+  max-height:calc(100dvh - 12rem);
+  width:auto;height:auto;
+  border-radius:18px;background:#fff;
+  box-shadow:0 30px 80px -24px rgba(0,0,0,.75);
+  transform:scale(.94);transition:transform .28s cubic-bezier(.22,.8,.3,1);
+}
+.lightbox.open .lb-figure img{transform:scale(1)}
+.lb-cap{
+  text-align:center;color:#fff;font-weight:700;
+  font-size:clamp(1rem,3.4vw,1.28rem);line-height:1.35;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+/* the sub-line is a whole product description on a single-item card, so it
+   is set lighter and narrower than the headline to stay the quieter half */
+.lb-cap small{
+  display:block;margin:.3rem auto 0;max-width:56ch;
+  font-weight:500;font-size:.8em;line-height:1.4;opacity:.8;
+}
+.lb-close{
+  position:absolute;top:clamp(.8rem,3vw,1.4rem);right:clamp(.8rem,3vw,1.4rem);
+  width:var(--tap);height:var(--tap);border-radius:14px;cursor:pointer;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:#fff;font-size:1.9rem;line-height:1;font-family:inherit;
+}
+.lb-close:hover{background:rgba(255,255,255,.3)}
+body.lightbox-open{overflow:hidden}
 
 /* ============================================================
    FOOTER
@@ -933,6 +1061,15 @@ body.drawer-open{overflow:hidden}
     </div>
   </div>
 </footer>
+
+<!-- ============================ IMAGE LIGHTBOX ============================ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged product photo" aria-hidden="true">
+  <button class="lb-close" id="lbClose" type="button" aria-label="Close photo">&times;</button>
+  <figure class="lb-figure">
+    <img id="lbImg" src="" alt="">
+    <figcaption class="lb-cap" id="lbCap"></figcaption>
+  </figure>
+</div>
 
 <!-- ============================ CART DRAWER ============================ -->
 <div class="scrim" id="scrim"></div>
@@ -1043,7 +1180,11 @@ body.drawer-open{overflow:hidden}
      hot       : true  -> badge turns green
      note      : optional small line under the price
      parts     : optional array of the products inside a bundle,
-                 [{ name, image }, ...]. When present the card draws a
+                 [{ name, full, image }, ...]. `name` is the short caption
+                 printed under the box; `full` is the catalogue-length name,
+                 used for the alt text and the enlarged-photo caption, and
+                 falls back to `name` when it is left out.
+                 When present the card draws a
                  composite media well — every part side by side with a "+"
                  between each pair — and `image` above is ignored. Two or
                  more parts render the same way. Missing part art falls back
@@ -1092,23 +1233,23 @@ const CATALOG = [
     tag: "Best value",
     items: [
       { id:"bundle-1", name:"EUHOMY Ice Maker + 18L Beverage Cooler",        desc:"EUHOMY Countertop Ice Maker Machine • EUHOMY 18L Beverage Refrigerator Cooler",              price:13.10, per:"weekly", from:true, badge:"Bundle 1", note:"Bundle of 2 items",
-        parts:[ { name:"EUHOMY Ice Maker", image:"" }, { name:"18L Beverage Cooler", image:"" } ] },
+        parts:[ { name:"EUHOMY Ice Maker", full:"EUHOMY Countertop Ice Maker Machine", image:"images/summer-bundle-images/bundle-1/Euhomy-countertop-ice-maker-machine.webp" }, { name:"18L Beverage Cooler", full:"EUHOMY 18L Beverage Refrigerator Cooler", image:"images/summer-bundle-images/bundle-1/euhomy-beverage-refrigerator-cooler.webp" } ] },
       { id:"bundle-2", name:"EUHOMY Ice Maker + Smoothie Blender",           desc:"EUHOMY Countertop Ice Maker Machine • Ganiza Smoothie Blender Max",                         price:6.85,  per:"weekly", from:true, badge:"Bundle 2", note:"Bundle of 2 items",
-        parts:[ { name:"EUHOMY Ice Maker", image:"" }, { name:"Smoothie Blender", image:"" } ] },
+        parts:[ { name:"EUHOMY Ice Maker", full:"EUHOMY Countertop Ice Maker Machine", image:"images/summer-bundle-images/bundle-2/Euhomy-countertop-ice-maker-machine.webp" }, { name:"Smoothie Blender", full:"Ganiza Smoothie Blender Max", image:"images/summer-bundle-images/bundle-2/ganiza-smoothie-blender-max.webp" } ] },
       { id:"bundle-3", name:"EUHOMY Ice Maker + Portable Air Conditioner",   desc:"EUHOMY Countertop Ice Maker Machine • Portable Air Conditioner",                            price:10.23, per:"weekly", from:true, badge:"Bundle 3", note:"Bundle of 2 items",
-        parts:[ { name:"EUHOMY Ice Maker", image:"" }, { name:"Portable Air Conditioner", image:"" } ] },
+        parts:[ { name:"EUHOMY Ice Maker", full:"EUHOMY Countertop Ice Maker Machine", image:"images/summer-bundle-images/bundle-3/Euhomy-countertop-ice-maker-machine.webp" }, { name:"Portable Air Conditioner", full:"Portable Air Conditioner", image:"images/summer-bundle-images/bundle-3/portable-air-conditioner.webp" } ] },
       { id:"bundle-4", name:"Mini Projector + Projector Screen",             desc:"Toptro Mini Projector • Projector Screen with Stand",                                       price:8.31,  per:"weekly", from:true, badge:"Bundle 4", note:"Bundle of 2 items",
-        parts:[ { name:"Mini Projector", image:"" }, { name:"Projector Screen", image:"" } ] },
-      { id:"bundle-5", name:"EUHOMY Ice Maker + Bluetooth Speaker",          desc:"EUHOMY Countertop Ice Maker Machine • Anker Soundcore 2 Bluetooth Speaker",                 price:8.74,  per:"weekly", from:true, badge:"Bundle 5", note:"Bundle of 2 items",
-        parts:[ { name:"EUHOMY Ice Maker", image:"" }, { name:"Bluetooth Speaker", image:"" } ] },
+        parts:[ { name:"Mini Projector", full:"Toptro Mini Projector", image:"images/summer-bundle-images/bundle-4/toptro-mini-projector.webp" }, { name:"Projector Screen", full:"Projector Screen with Stand", image:"images/summer-bundle-images/bundle-4/projector-screen-with-stand.webp" } ] },
+      { id:"bundle-5", name:"EUHOMY 12V Refrigerator + Bluetooth Speaker",   desc:"EUHOMY 12 Volt Refrigerator • Anker Soundcore 2 Bluetooth Speaker",                          price:8.74,  per:"weekly", from:true, badge:"Bundle 5", note:"Bundle of 2 items",
+        parts:[ { name:"12V Refrigerator", full:"EUHOMY 12 Volt Refrigerator", image:"images/summer-bundle-images/bundle-5/euhomy-12-volt-refrigerator.webp" }, { name:"Bluetooth Speaker", full:"Anker Soundcore 2 Bluetooth Speaker", image:"images/summer-bundle-images/bundle-5/anker-soundcore-2-bluetooth-speaker.webp" } ] },
       { id:"bundle-6", name:"Pressure Washer + Handheld Car Vacuum",         desc:"TOPALL Cordless Pressure Washer Max • Handheld Car Vacuum Cleaner, Cordless Powerful",      price:6.75,  per:"weekly", from:true, badge:"Bundle 6", note:"Bundle of 2 items",
-        parts:[ { name:"Pressure Washer", image:"" }, { name:"Handheld Car Vacuum", image:"" } ] },
+        parts:[ { name:"Pressure Washer", full:"TOPALL Cordless Pressure Washer Max", image:"images/summer-bundle-images/bundle-6/TOPALL-cordless-pressure-washer-max.webp" }, { name:"Handheld Car Vacuum", full:"Handheld Car Vacuum Cleaner, Cordless Powerful", image:"images/summer-bundle-images/bundle-6/handheld-car-vacuum-cleaner-cordless-powerful.webp" } ] },
       { id:"bundle-7", name:"Pop Up Camping Tent + Charcoal Grill",          desc:"EchoSmile Instant Pop Up Tent, 4-6 Person Camping Tent • Portable Charcoal Grill",          price:9.00,  per:"weekly", from:true, badge:"Bundle 7", note:"Bundle of 2 items",
-        parts:[ { name:"Pop Up Camping Tent", image:"" }, { name:"Charcoal Grill", image:"" } ] },
+        parts:[ { name:"Pop Up Camping Tent", full:"EchoSmile Instant Pop Up Tent, 4-6 Person Camping Tent", image:"images/summer-bundle-images/bundle-7/echosmile-instant-pop-up-tent.webp" }, { name:"Charcoal Grill", full:"Portable Charcoal Grill", image:"images/summer-bundle-images/bundle-7/portable-charcoal-grill.webp" } ] },
       { id:"bundle-8", name:"Anker Power Station + 12V Refrigerator",        desc:"Anker SOLIX C200 DC Portable Power Station • EUHOMY 12 Volt Refrigerator",                  price:15.55, per:"weekly", from:true, badge:"Bundle 8", note:"Bundle of 2 items",
-        parts:[ { name:"Anker Power Station", image:"" }, { name:"12V Refrigerator", image:"" } ] },
+        parts:[ { name:"Anker Power Station", full:"Anker SOLIX C200 DC Portable Power Station", image:"images/summer-bundle-images/bundle-8/anker-solix-c200-portable-power-station.webp" }, { name:"12V Refrigerator", full:"EUHOMY 12 Volt Refrigerator", image:"images/summer-bundle-images/bundle-8/euhomy-12-volt-refrigerator.webp" } ] },
       { id:"bundle-9", name:"Anker Power Station + Mini Projector",          desc:"Anker SOLIX C200 DC Portable Power Station • Toptro Mini Projector",                        price:14.11, per:"weekly", from:true, badge:"Bundle 9", note:"Bundle of 2 items",
-        parts:[ { name:"Anker Power Station", image:"" }, { name:"Mini Projector", image:"" } ] }
+        parts:[ { name:"Anker Power Station", full:"Anker SOLIX C200 DC Portable Power Station", image:"images/summer-bundle-images/bundle-9/anker-solix-c200-portable-power-station.webp" }, { name:"Mini Projector", full:"Toptro Mini Projector", image:"images/summer-bundle-images/bundle-9/toptro-mini-projector.webp" } ] }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   }
@@ -1146,8 +1287,14 @@ const ICONS = {
   check: svg(`<path d="m4.5 12.5 5 5 10-11"/>`),
   image: svg(`<rect x="3" y="4" width="18" height="16" rx="2.5"/>
               <circle cx="8.6" cy="9.6" r="1.7"/>
-              <path d="m3.6 17.4 4.6-4.3a2 2 0 0 1 2.7 0l3 2.8m0 0 1.7-1.6a2 2 0 0 1 2.7 0l2 1.9m-6.4-.3 6.4.3"/>`)
+              <path d="m3.6 17.4 4.6-4.3a2 2 0 0 1 2.7 0l3 2.8m0 0 1.7-1.6a2 2 0 0 1 2.7 0l2 1.9m-6.4-.3 6.4.3"/>`),
+  zoom: svg(`<circle cx="10.5" cy="10.5" r="6.75"/><path d="m15.5 15.5 4.75 4.75M8 10.5h5m-2.5-2.5v5"/>`)
 };
+
+/* The magnifier that sits in the corner of every real product photo. It is
+   decorative — the photo itself carries the button role — so it is hidden
+   from assistive tech and never takes a click of its own. */
+const ZOOM_HINT = `<span class="zoom-hint" aria-hidden="true">${ICONS.zoom}</span>`;
 
 /* ============================================================
    3) ENGINE — no need to edit below here
@@ -1183,18 +1330,70 @@ function renderCatalog(){
    parts keeps the single-image media it has always had. */
 const PART_LETTERS = "abcdefgh";
 
-/* The thumbnail contexts — the fly-to-cart chip and the drawer line — want
-   one image per card, so a bundle lends them its first part's art. */
-function leadImage(it){
-  if(it.image) return it.image;
-  if(it.parts && it.parts.length) return it.parts[0].image || "";
-  return "";
+/* ---------- small thumbnails: the drawer line and the fly-to-cart chip ----
+   A bundle used to lend these its first part's art alone, which read as
+   "Anker Power Station + 12V Refrigerator" next to a picture of only the
+   power station. They now show every product in the bundle side by side, so
+   the tile says the same thing the card does.
+   The cells are laid out by grid; the column count and the tile width come
+   inline, which is what keeps a three-part bundle working. -------------- */
+function thumbParts(it){
+  return (it.parts || []).filter(p => p.image);
+}
+
+/* Cell edges: `pad` rings the tile, `gap` separates two cells. Kept here
+   because the width arithmetic below has to agree with the CSS exactly. */
+const THUMB_PAD = 3, THUMB_GAP = 4;
+function pairWidth(n, cell){ return n * cell + (n - 1) * THUMB_GAP + 2 * THUMB_PAD; }
+
+/* One description of an item's tile — whether it is a pair, the inline style
+   it needs, and its contents. The drawer builds a tile element from this as
+   a string; the flying chip, which already has its element, applies it to
+   that. `cell` is the square edge each product gets, or null when the caller
+   sizes the tile itself (the chip is sized by its wrapper). */
+function thumbSpec(it, fallbackIcon, cell){
+  const parts = thumbParts(it);
+  if(parts.length > 1){
+    return {
+      pair: true,
+      style: `grid-template-columns:repeat(${parts.length},1fr)` +
+             (cell ? `;width:${pairWidth(parts.length, cell)}px` : ""),
+      html: parts.map(p => `<img src="${attr(p.image)}" alt="">`).join("")
+    };
+  }
+  const one = it.image || (parts[0] && parts[0].image) || "";
+  return {
+    pair: false,
+    style: "",
+    html: one ? `<img src="${attr(one)}" alt="">` : fallbackIcon
+  };
+}
+
+/* Product names carry straight quotes (MacBook Air 13" …) and would end an
+   HTML attribute early, so anything interpolated into one goes through here. */
+function attr(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/"/g,"&quot;")
+    .replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+/* Markup for one photo that opens in the lightbox. `title` is the headline
+   the enlargement shows, `sub` the smaller line under it. */
+function zoomImgHTML(src, title, sub){
+  return `<img src="${attr(src)}" alt="${attr(title)}" loading="lazy"
+    class="zoomable" tabindex="0" role="button"
+    aria-label="${attr(title)} — view a larger photo"
+    data-zoom-title="${attr(title)}" data-zoom-sub="${attr(sub || "")}">`;
 }
 
 function partHTML(it, part, i){
   const file = `${it.id}-item-${PART_LETTERS[i] || i + 1}.jpg`;
+  /* `full` is the catalogue-length product name; `name` is the short caption
+     that has to fit under a half-width box. The enlargement has the room for
+     the long one. */
+  const title = part.full || part.name;
   const art = part.image
-    ? `<img src="${part.image}" alt="${part.name}" loading="lazy">`
+    ? zoomImgHTML(part.image, title, `Part of ${it.badge || "this bundle"} · ${it.name}`) + ZOOM_HINT
     : `<div class="media-placeholder">${ICONS.image}Add image:<br><code>${file}</code></div>`;
   return `<div class="bundle-item-box">${art}<span class="bundle-item-name">${part.name}</span></div>`;
 }
@@ -1225,7 +1424,7 @@ function cardHTML(it){
   const media = (it.parts && it.parts.length)
     ? comboHTML(it)
     : it.image
-      ? `<img src="${it.image}" alt="${it.name}" loading="lazy">`
+      ? zoomImgHTML(it.image, it.name, it.desc) + ZOOM_HINT
       : `<div class="media-placeholder">${ICONS.image}Add image:<br><code>${it.id}.jpg</code></div>`;
   return `
   <article class="glass card" data-card="${it.id}">
@@ -1298,18 +1497,23 @@ function flyToCart(media, it, done){
   const s = media.getBoundingClientRect();
   const t = cartBtn.getBoundingClientRect();
   const size = Math.min(116, Math.max(74, s.width * .48));
+  /* A bundle's ghost carries both products, so it needs a wider box than a
+     single item's square one — three quarters of the height per product. */
+  const n = thumbParts(it).length;
+  const wide = n > 1 ? Math.round(size * .75 * n) : size;
 
   const wrap = document.createElement("div");
   wrap.className = "fly-wrap";
-  wrap.style.left   = (s.left + s.width/2  - size/2) + "px";
+  wrap.style.left   = (s.left + s.width/2  - wide/2) + "px";
   wrap.style.top    = (s.top  + s.height/2 - size/2) + "px";
-  wrap.style.width  = size + "px";
+  wrap.style.width  = wide + "px";
   wrap.style.height = size + "px";
 
   const chip = document.createElement("div");
   chip.className = "fly-chip";
-  const lead = leadImage(it);
-  chip.innerHTML = lead ? `<img src="${lead}" alt="">` : ICONS.cart;
+  const tile = thumbSpec(it, ICONS.cart, null);   /* the wrapper above sets the width */
+  if(tile.pair){ chip.classList.add("is-pair"); chip.style.cssText = tile.style; }
+  chip.innerHTML = tile.html;
   wrap.appendChild(chip);
   document.body.appendChild(wrap);
 
@@ -1378,10 +1582,8 @@ function syncAll(){
 function renderLines(){
   el("#cartLines").innerHTML = [...cart.entries()].map(([id,q])=>{
     const it = byId.get(id);
-    const lead = leadImage(it);
-    const thumb = lead
-      ? `<img class="line-thumb" src="${lead}" alt="">`
-      : `<div class="line-thumb" aria-hidden="true">${ICONS.image}</div>`;
+    const tile = thumbSpec(it, ICONS.image, 52);
+    const thumb = `<div class="line-thumb${tile.pair ? " is-pair" : ""}" style="${tile.style}" aria-hidden="true">${tile.html}</div>`;
     return `
     <div class="line${id === lastAdded ? " just-added" : ""}">
       ${thumb}
@@ -1474,7 +1676,58 @@ el("#closeCart").addEventListener("click", closeCart);
 scrim.addEventListener("click", closeCart);
 el("#toForm").addEventListener("click", ()=>showStep("form"));
 el("#backToCart").addEventListener("click", ()=>showStep("cart"));
-document.addEventListener("keydown", e => { if(e.key === "Escape" && drawer.classList.contains("open")) closeCart(); });
+/* ---------- image lightbox ----------
+   Any .zoomable product photo opens enlarged. The photo carries role=button
+   and a tabindex so it works from the keyboard as well as the pointer; the
+   corner magnifier is only decoration. */
+const lightbox = el("#lightbox"), lbImg = el("#lbImg"), lbCap = el("#lbCap");
+let lbReturnFocus = null;
+
+function openLightbox(img){
+  /* currentSrc is the file the browser actually chose, which is what the
+     card is already showing — no second download to enlarge it. */
+  lbImg.src = img.currentSrc || img.src;
+  const title = img.dataset.zoomTitle || img.alt || "";
+  const sub   = img.dataset.zoomSub || "";
+  lbImg.alt = title;
+  lbCap.innerHTML = `${attr(title)}${sub ? `<small>${attr(sub)}</small>` : ""}`;
+  lbReturnFocus = img;
+  lightbox.classList.add("open");
+  lightbox.setAttribute("aria-hidden","false");
+  document.body.classList.add("lightbox-open");
+  el("#lbClose").focus();
+}
+
+function closeLightbox(){
+  if(!lightbox.classList.contains("open")) return;
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden","true");
+  document.body.classList.remove("lightbox-open");
+  if(lbReturnFocus && document.contains(lbReturnFocus)) lbReturnFocus.focus();
+  lbReturnFocus = null;
+}
+
+document.addEventListener("click", e => {
+  const img = e.target.closest("img.zoomable");
+  if(img){ openLightbox(img); return; }
+});
+/* Enter or Space on a focused photo, matching a real button. */
+document.addEventListener("keydown", e => {
+  if(e.key !== "Enter" && e.key !== " ") return;
+  const img = e.target.closest && e.target.closest("img.zoomable");
+  if(!img) return;
+  e.preventDefault();
+  openLightbox(img);
+});
+el("#lbClose").addEventListener("click", closeLightbox);
+/* anywhere on the backdrop, but not on the photo itself */
+lightbox.addEventListener("click", e => { if(!e.target.closest(".lb-figure img")) closeLightbox(); });
+/* the lightbox sits above the drawer, so it takes Escape first */
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape") return;
+  if(lightbox.classList.contains("open")) closeLightbox();
+  else if(drawer.classList.contains("open")) closeCart();
+});
 
 /* keep focus inside the drawer while it is open */
 drawer.addEventListener("keydown", e => {
