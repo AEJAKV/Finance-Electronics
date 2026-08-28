@@ -1564,11 +1564,19 @@ function totals(){
   return { count, sum };
 }
 
+/* The total is only called weekly when every line in the list actually is
+   priced that way — one item billed some other way would make the label a
+   lie. The drawer footer and the form's summary both ask this, so it lives
+   here rather than being worked out twice. */
+function weeklyTotals(){
+  const t = totals();
+  return { ...t, weekly: t.count > 0 && [...cart.keys()].every(id => byId.get(id).per === "weekly") };
+}
+
 function syncAll(){
-  const { count, sum } = totals();
+  const { count, sum, weekly } = weeklyTotals();
   if(inFlight === 0) applyCount(count);   // otherwise land() ticks it over
   el("#cartBtn").dataset.empty = count ? "false" : "true";
-  const weekly = count > 0 && [...cart.keys()].every(id => byId.get(id).per === "weekly");
   const shown  = money(sum) + (weekly ? " /wk" : "");
   el("#totalLabel").textContent = weekly ? "Estimated weekly total" : "Estimated total";
   el("#cartTotal").textContent = shown;
@@ -1615,9 +1623,11 @@ function lineSummary(){
 }
 
 function renderFormSummary(){
-  const { count, sum } = totals();
+  const { count, sum, weekly } = weeklyTotals();
   el("#formCount").textContent = count;
-  el("#formTotal").textContent = money(sum);
+  /* Spelled out rather than the footer's "/wk": this one reads as a
+     sentence, and a bare figure here looked like the whole cost. */
+  el("#formTotal").textContent = money(sum) + (weekly ? " per week" : "");
   el("#formList").textContent = [...cart.entries()]
     .map(([id,q]) => `${q} × ${byId.get(id).name}`).join(" · ");
 }
@@ -1744,7 +1754,11 @@ drawer.addEventListener("keydown", e => {
 el("#leadForm").addEventListener("submit", e => {
   if(cart.size === 0){ e.preventDefault(); showStep("cart"); return; }
   el("#itemsField").value = lineSummary();
-  el("#totalField").value = money(totals().sum);
+  /* The emailed total carries the billing unit too, so the agent reading the
+     request sees the same figure the customer confirmed rather than a bare
+     number that looks like a one-off price. */
+  const { sum, weekly } = weeklyTotals();
+  el("#totalField").value = money(sum) + (weekly ? " per week" : "");
 });
 
 /* ============================================================
