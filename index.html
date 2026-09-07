@@ -191,9 +191,52 @@ button{font:inherit}
 }
 .header-spacer{flex:1}
 
+/* ---- right-hand cluster: 0% badge + call pill + VIP pill ----
+   One flex item so the pills wrap onto their own line(s) together on a
+   narrow phone, rather than each fighting the logo for space on the
+   same row. */
+.header-right{
+  position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  gap:.6rem;
+}
+
+/* ---- 0% interest badge ----
+   Solid fill (not the frosted glass the other two pills use) so the
+   headline financing offer reads as the loudest thing in the bar. */
+.header-promo{
+  display:inline-flex;align-items:center;gap:.5rem;
+  min-height:44px;padding:0 clamp(.8rem,2.4vw,1.15rem);
+  border-radius:999px;
+  font-size:clamp(.82rem,2.1vw,1rem);font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  color:#fff;border:1px solid rgba(255,255,255,.4);
+  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 10px 22px -12px rgba(21,128,61,.65);
+}
+.header-promo svg{flex:none;width:16px;height:16px}
+
+/* ---- call pill ---- */
+.header-call{
+  display:inline-flex;align-items:center;gap:.5rem;
+  min-height:44px;padding:0 clamp(.8rem,2.4vw,1.15rem);
+  border-radius:999px;text-decoration:none;
+  font-size:clamp(.82rem,2.1vw,1rem);font-weight:700;white-space:nowrap;
+  color:var(--accent-deep);
+  border:1px solid rgba(255,255,255,.72);
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.42));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 8px 18px -12px rgba(70,45,15,.55);
+  transition:transform .18s cubic-bezier(.34,1.2,.64,1),box-shadow .18s ease;
+}
+.header-call:hover{transform:translateY(-2px)}
+.header-call svg{flex:none;width:16px;height:16px;color:var(--accent-deep)}
+
 /* ---- VIP pill ---- */
 .header-note{
-  position:relative;z-index:1;
   display:inline-flex;align-items:center;gap:.5rem;
   min-height:44px;padding:0 clamp(.8rem,2.4vw,1.15rem);
   border-radius:999px;
@@ -208,17 +251,17 @@ button{font:inherit}
     0 8px 18px -12px rgba(70,45,15,.55);
 }
 .header-note svg{flex:none;width:16px;height:16px;color:var(--accent-deep)}
-/* Smallest phones: the VIP pill is nowrap, so it has to give up the
-   letter-spacing rather than squeeze the logo out of the bar. */
+/* Smallest phones: every pill gives up the letter-spacing/padding rather
+   than squeeze the logo out of the bar. */
 @media (max-width:400px){
-  .header-note{font-size:.76rem;letter-spacing:.04em;padding:0 .7rem;gap:.35rem}
-  .header-note svg{width:14px;height:14px}
+  .header-promo,.header-call,.header-note{font-size:.76rem;letter-spacing:.04em;padding:0 .7rem;gap:.35rem}
+  .header-promo svg,.header-call svg,.header-note svg{width:14px;height:14px}
 }
-/* Under ~360px the pill cannot hold "VIP SPECIAL ACCESS" on one line
-   beside the logo. Wrapping to two lines keeps the full wording at a
-   legible size instead of shrinking the type into the unreadable. */
+/* Under ~360px a pill can't hold its full text on one line beside the
+   logo. Wrapping to two lines keeps the full wording at a legible size
+   instead of shrinking the type into the unreadable. */
 @media (max-width:360px){
-  .header-note{white-space:normal;text-align:center;line-height:1.15;padding:.35rem .6rem}
+  .header-promo,.header-call,.header-note{white-space:normal;text-align:center;line-height:1.15;padding:.35rem .6rem}
 }
 
 /* ============================================================
@@ -1155,10 +1198,20 @@ body.drawer-open{overflow:hidden}
         <img src="images/goloans-logo.png" alt="GoLoans">
       </a>
       <span class="header-spacer"></span>
-      <span class="header-note">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.5 5.4 5.9.7-4.4 4 1.2 5.8L12 15.6 6.8 18.5 8 12.7 3.6 8.7l5.9-.7z"/></svg>
-        VIP Special Access
-      </span>
+      <div class="header-right">
+        <span class="header-promo">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.6 2.3c.4-.4 1-.6 1.5-.6h6.6c.6 0 1 .4 1 1v6.6c0 .6-.2 1.1-.6 1.5l-9.7 9.7a2 2 0 0 1-2.8 0l-6.6-6.6a2 2 0 0 1 0-2.8l9.7-9.7zM17 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+          0% Interest
+        </span>
+        <a class="header-call" href="tel:+18664784199">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+          +1 (866) 478-4199
+        </a>
+        <span class="header-note">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.5 5.4 5.9.7-4.4 4 1.2 5.8L12 15.6 6.8 18.5 8 12.7 3.6 8.7l5.9-.7z"/></svg>
+          VIP Special Access
+        </span>
+      </div>
     </div>
   </div>
 </header>
@@ -1276,7 +1329,7 @@ body.drawer-open{overflow:hidden}
       <input type="hidden" name="_subject" value="New Summer Catalog request">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_next" value="https://offers.goloans.ca/thank-you/">
+      <input type="hidden" name="_next" value="https://finance-electronics.vercel.app/thank-you/">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
       <!-- filled in by JS at submit time -->
       <input type="hidden" name="Selected items" id="itemsField">
@@ -1293,6 +1346,10 @@ body.drawer-open{overflow:hidden}
       <div class="field">
         <label for="f-phone">Phone number</label>
         <input id="f-phone" name="Phone" type="tel" required autocomplete="tel" placeholder="(555) 555-5555">
+      </div>
+      <div class="field">
+        <label for="f-address">Delivery address</label>
+        <input id="f-address" name="Delivery address" type="text" required autocomplete="street-address" placeholder="123 Main St, City, Province, Postal Code">
       </div>
       <div class="field">
         <label for="f-notes">Anything else we should know? <span style="font-weight:500;color:var(--ink-soft)">(optional)</span></label>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank You — GoLoans.ca</title>
+<meta name="robots" content="noindex">
+<style>
+:root{
+  --brand:            #16A34A;
+  --brand-deep:       #15803D;
+  --accent:           #F97316;
+  --accent-deep:      #C2410C;
+  --ink:              #1B1205;
+  --ink-soft:         #4A4034;
+  --cream:            #FFFBF2;
+  --wash-peach:       #FFE6D2;
+  --wash-mango:       #FFEFC9;
+  --wash-mint:        #DDF3E6;
+  --glass:            rgba(255,255,255,.85);
+  --glass-line:       rgba(255,255,255,.9);
+  --shadow-lg:        0 24px 60px -20px rgba(70,45,15,.34);
+  --radius:           20px;
+  --tap:              52px;
+  --font-sans: ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;min-height:100dvh;
+  font-family:var(--font-sans);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  background:
+    radial-gradient(1100px 620px at 12% -10%, var(--wash-peach), transparent 60%),
+    radial-gradient(900px 560px at 105% 10%, var(--wash-mint), transparent 55%),
+    linear-gradient(180deg, var(--wash-mango) 0%, var(--cream) 55%);
+}
+img{max-width:100%;display:block}
+p{margin:0 0 1rem;line-height:1.6}
+.card{
+  width:min(560px,100%);text-align:center;
+  background:var(--glass);border:1px solid var(--glass-line);
+  border-radius:var(--radius);box-shadow:var(--shadow-lg);
+  padding:clamp(1.75rem,5vw,3rem);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+}
+.brand{display:inline-flex;margin-bottom:1.5rem}
+.brand img{height:34px;width:auto}
+.check{
+  width:76px;height:76px;margin:0 auto 1.25rem;border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
+  box-shadow:0 14px 28px -10px rgba(21,128,61,.55);
+}
+.check svg{width:38px;height:38px}
+h1{
+  margin:0 0 .9rem;font-size:clamp(1.6rem,4.4vw,2.15rem);
+  font-weight:700;line-height:1.15;letter-spacing:-.005em;
+}
+.lede{font-size:clamp(1.05rem,2.6vw,1.2rem);color:var(--ink-soft);font-weight:500}
+.note{
+  margin:1.5rem 0 0;padding:1rem 1.1rem;border-radius:14px;text-align:left;
+  background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);
+  color:var(--accent-deep);font-weight:600;font-size:1rem;line-height:1.5;
+}
+.actions{margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  min-height:var(--tap);padding:0 1.5rem;border-radius:14px;
+  font-weight:700;font-size:1.05rem;text-decoration:none;border:none;
+}
+.btn-primary{
+  color:#fff;
+  background:linear-gradient(180deg,#FB923C 0%,#F97316 45%,#EA580C 100%);
+  box-shadow:0 14px 28px -10px rgba(194,65,12,.55);
+}
+.btn-ghost{
+  color:var(--brand-deep);
+  background:rgba(255,255,255,.7);border:1px solid var(--glass-line);
+}
+.fineprint{margin-top:1.5rem;font-size:.9rem;color:var(--ink-soft)}
+.fineprint a{color:var(--brand-deep);font-weight:600}
+</style>
+</head>
+<body>
+
+<main class="card">
+  <a class="brand" href="../" aria-label="GoLoans — home">
+    <img src="../images/goloans-logo.png" alt="GoLoans">
+  </a>
+
+  <div class="check" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></svg>
+  </div>
+
+  <h1>Thank you for your order!</h1>
+  <p class="lede">Please check your inbox within the next 30 minutes to sign your approval sheet. Once signed, our team will promptly process and ship your order.</p>
+
+  <div class="note">Don't see it after 30 minutes? Check your spam/junk folder, or call us at <a href="tel:+18664784199" style="color:inherit">+1 (866) 478-4199</a> and we'll resend it.</div>
+
+  <div class="actions">
+    <a class="btn btn-primary" href="../">Back to the catalog</a>
+    <a class="btn btn-ghost" href="https://goloans.ca/" target="_blank" rel="noopener">Visit GoLoans.ca</a>
+  </div>
+
+  <p class="fineprint">Questions in the meantime? Email <a href="mailto:sales@goloans.ca">sales@goloans.ca</a>.</p>
+</main>
+
+</body>
+</html>
