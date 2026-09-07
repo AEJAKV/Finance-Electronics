@@ -389,6 +389,44 @@ body{padding-bottom:104px}
 .tick{color:var(--brand);font-weight:700;display:inline-flex}
 
 /* ============================================================
+   PROMO BANNER
+   Full-bleed strip above the header, styled after a classic
+   "Hello Summer" marketing banner: an icon, the offer spelled out
+   in a few dot-separated phrases, and a pill CTA on the right. The
+   whole strip is one button that opens the Top 5 Deals modal.
+   ============================================================ */
+.promo-banner{
+  display:flex;align-items:center;gap:.9rem;width:100%;
+  min-height:46px;padding:.6rem 1.1rem;border:none;cursor:pointer;
+  font:inherit;text-align:left;color:#fff;
+  background:linear-gradient(90deg,#FB923C 0%,#F97316 48%,#EA580C 100%);
+  transition:background .18s ease;
+}
+.promo-banner:hover{background:linear-gradient(90deg,#FDBA74 0%,#FB923C 48%,#F97316 100%)}
+.promo-banner-icon{flex:none;font-size:1.2rem;line-height:1}
+.promo-banner-text{
+  flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  font-weight:700;font-size:clamp(.74rem,1.9vw,.95rem);letter-spacing:.02em;
+}
+.promo-banner-text .sep{margin:0 .65em;opacity:.6}
+/* Drop the trailing phrase(s) as the strip narrows so the pill CTA
+   never gets squeezed off the end: all 3 phrases on desktop, 2 on
+   tablet, just the headline on phones. */
+@media (max-width:640px){
+  .promo-banner-text .part-3,
+  .promo-banner-text .sep-2{display:none}
+}
+@media (max-width:420px){
+  .promo-banner-text .part-2,
+  .promo-banner-text .sep-1{display:none}
+}
+.promo-banner-cta{
+  flex:none;padding:.5rem 1.05rem;border-radius:999px;
+  background:#fff;color:#C2410C;font-weight:800;
+  font-size:clamp(.72rem,1.7vw,.85rem);letter-spacing:.02em;white-space:nowrap;
+}
+
+/* ============================================================
    CATALOG DECK  —  fanned stack of covers, click to advance
    Cards are letter-ratio (8.5 x 11) to match the real artwork.
    ============================================================ */
@@ -529,6 +567,13 @@ body{padding-bottom:104px}
 }
 .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
 .card.is-in-cart{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset,var(--shadow)}
+/* Gold ring + glow so a best-seller stands out from the grid even before
+   the ribbon on its photo is read */
+.card.is-best-seller{
+  border-color:#F59E0B;
+  box-shadow:0 0 0 2px #F59E0B inset,0 14px 32px -14px rgba(217,119,6,.5)
+}
+.card.is-best-seller:hover{box-shadow:0 0 0 2px #F59E0B inset,0 20px 44px -16px rgba(217,119,6,.6)}
 
 .card-media{
   position:relative;aspect-ratio:4/3;background:
@@ -651,14 +696,29 @@ body{padding-bottom:104px}
 .bundle-item-box .zoom-hint{width:26px;height:26px;right:.28rem;bottom:auto;top:.28rem}
 .bundle-item-box .zoom-hint svg{width:14px;height:14px}
 
-.badge{
+/* One positioned stack in the top-left corner so a "Pick Item N" badge and
+   a "Best Seller" ribbon never fight for the same spot or overlap on a
+   narrow card — they just queue up underneath each other. */
+.badge-stack{
   position:absolute;top:.9rem;left:.9rem;z-index:2;
+  display:flex;flex-direction:column;align-items:flex-start;gap:.4rem;
+}
+.badge{
   padding:.35rem .8rem;border-radius:999px;
   background:var(--glass-strong);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border:1px solid var(--glass-line);
   font-weight:700;font-size:1rem;color:var(--brand-deep);
 }
 .badge.hot{background:var(--accent);color:var(--ink);border-color:transparent}
+.badge-best{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.35rem .8rem .35rem .65rem;border-radius:999px;
+  background:linear-gradient(135deg,#FBBF24 0%,#F59E0B 55%,#D97706 100%);
+  border:1px solid rgba(255,255,255,.55);
+  font-weight:700;font-size:1rem;color:#fff;
+  box-shadow:0 8px 18px -10px rgba(217,119,6,.65);
+}
+.badge-best .ico{width:15px;height:15px;flex:none}
 
 .card-body{padding:1.15rem 1.25rem 1.35rem;display:flex;flex-direction:column;flex:1;gap:.35rem}
 .card-body h3{margin:0}
@@ -735,7 +795,9 @@ body{padding-bottom:104px}
   .price{font-size:clamp(1.12rem,4.6vw,1.5rem)}
   .price-per{font-size:clamp(.8rem,2.9vw,.98rem)}
   .price-from,.price-was,.price-note{font-size:clamp(.76rem,2.8vw,.95rem)}
-  .badge{top:.5rem;left:.5rem;padding:.24rem .58rem;font-size:clamp(.72rem,2.8vw,.9rem)}
+  .badge-stack{top:.5rem;left:.5rem;gap:.3rem}
+  .badge,.badge-best{padding:.24rem .58rem;font-size:clamp(.72rem,2.8vw,.9rem)}
+  .badge-best .ico{width:12px;height:12px}
 
   /* stacked so the stepper and the confirm button each get the
      full card width instead of fighting over one row */
@@ -978,6 +1040,69 @@ body{padding-bottom:104px}
 body.lightbox-open{overflow:hidden}
 
 /* ============================================================
+   TOP 5 DEALS MODAL
+   Centered dialog over its own scrim, listing the week's five
+   cheapest weekly payments pulled live from the tech and special
+   sections — same card markup as the catalog, so "Add to my list"
+   works identically from inside it.
+   ============================================================ */
+.deals-modal{
+  position:fixed;inset:0;z-index:130;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(1rem,4vw,2.5rem);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+.deals-modal.open{opacity:1;visibility:visible;pointer-events:auto}
+/* Same liquid-glass build as the header bar: blurred/saturated backdrop,
+   a soft white body gradient, a bright specular top edge and a masked
+   rim-light ring, with a slow drifting sheen (off for reduced motion). */
+.deals-panel{
+  position:relative;isolation:isolate;overflow:hidden;
+  width:min(1040px,100%);max-height:min(84vh,84dvh);
+  display:flex;flex-direction:column;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.5);
+  -webkit-backdrop-filter:blur(26px) saturate(200%) brightness(1.05);
+  backdrop-filter:blur(26px) saturate(200%) brightness(1.05);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.54) 46%,rgba(255,255,255,.7) 100%),
+    linear-gradient(115deg,rgba(255,239,201,.45),rgba(221,243,230,.4) 55%,rgba(255,230,210,.45));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(255,255,255,.55),
+    0 30px 80px -24px rgba(0,0,0,.55);
+  transform:scale(.96);transition:transform .28s cubic-bezier(.22,.8,.3,1);
+}
+.deals-modal.open .deals-panel{transform:scale(1)}
+.deals-panel::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:0;
+  background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.65) 42%,transparent 64%);
+  background-size:220% 100%;
+  animation:glass-sheen 14s linear infinite;
+}
+.deals-panel::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;padding:1px;
+  background:linear-gradient(160deg,rgba(255,255,255,.95),rgba(255,255,255,.12) 38%,rgba(255,255,255,.06) 62%,rgba(255,255,255,.85));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+          mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .deals-panel{background:rgba(255,255,255,.96)}
+}
+/* real content sits above the sheen/rim-light pseudo-elements */
+.deals-head,.deals-sub,.deals-body{position:relative;z-index:1}
+.deals-head{display:flex;align-items:center;gap:.8rem;padding:1.3rem 1.4rem .4rem}
+.deals-head h2{margin:0;flex:1}
+.deals-sub{margin:0;padding:0 1.4rem 1.1rem;color:var(--ink-soft);font-weight:500;font-size:1.02rem}
+.deals-body{overflow-y:auto;padding:0 1.4rem 1.5rem;-webkit-overflow-scrolling:touch}
+.deals-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+body.deals-open{overflow:hidden}
+
+/* ============================================================
    FOOTER
    ============================================================ */
 .site-footer{margin-top:3rem;padding:2.2rem 0 3rem}
@@ -994,6 +1119,15 @@ body.drawer-open{overflow:hidden}
 </style>
 </head>
 <body>
+
+<!-- ============================ PROMO BANNER ============================ -->
+<button class="promo-banner" id="promoBanner" type="button">
+  <span class="promo-banner-icon" aria-hidden="true">🔥</span>
+  <span class="promo-banner-text">
+    <span class="part part-1">Top 5 Deals of the Week</span><span class="sep sep-1">·</span><span class="part part-2">The 5 Cheapest Weekly Picks, Live</span><span class="sep sep-2">·</span><span class="part part-3">Grab Them Before They're Gone</span>
+  </span>
+  <span class="promo-banner-cta">See The Deals</span>
+</button>
 
 <!-- ============================ HEADER ============================ -->
 <header class="site-header">
@@ -1069,6 +1203,21 @@ body.drawer-open{overflow:hidden}
     <img id="lbImg" src="" alt="">
     <figcaption class="lb-cap" id="lbCap"></figcaption>
   </figure>
+</div>
+
+<!-- ============================ TOP 5 DEALS MODAL ============================ -->
+<div class="scrim" id="dealsScrim"></div>
+<div class="deals-modal" id="dealsModal" role="dialog" aria-modal="true" aria-labelledby="dealsTitle" aria-hidden="true">
+  <div class="deals-panel">
+    <div class="deals-head">
+      <h2 id="dealsTitle">🔥 Top 5 Deals of the Week</h2>
+      <button class="icon-btn" id="closeDeals" aria-label="Close">×</button>
+    </div>
+    <p class="deals-sub">The 5 lowest weekly payments right now across Summer Exclusive Tech Offers and Summer Special — Hello Summer.</p>
+    <div class="deals-body">
+      <div class="grid deals-grid" id="dealsGrid"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ============================ CART DRAWER ============================ -->
@@ -1198,14 +1347,14 @@ const CATALOG = [
     blurb: "Members-only weekly pricing on this season's most-wanted tech. Payments are matched to your pay schedule over a 9–12 month finance period.",
     tag: "Limited quantities",
     items: [
-      { id:"iphone-14",       name:"iPhone 14 — 128GB",              desc:"6.1\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:30.52, per:"weekly", image:"images/premium-tech-images/iphone-14.webp", badge:"Pick 1" },
-      { id:"iphone-14-plus",  name:"iPhone 14 Plus — 128GB",         desc:"6.7\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:34.95, per:"weekly", image:"images/premium-tech-images/iphone-14-plus.webp", badge:"Pick 2" },
-      { id:"iphone-15",       name:"iPhone 15 — 128GB",              desc:"6.1\" Super Retina XDR • A16 Bionic Chip • Excellent Condition",                     price:41.13, per:"weekly", image:"images/premium-tech-images/iphone-15.webp", badge:"Pick 3" },
-      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"images/premium-tech-images/samsung-galaxyzflip-5.webp", badge:"Pick 4" },
-      { id:"ipad-10th-gen",   name:"Apple iPad 10th Gen — 64GB",     desc:"11\" Liquid Retina Display • A16 Bionic Chip • Wi-Fi • Excellent Condition",         price:43.03, per:"weekly", image:"images/premium-tech-images/apple-ipad10th-gen.webp", badge:"Pick 5" },
-      { id:"airpods-4",       name:"Apple AirPods 4 (ANC)",          desc:"Active Noise Cancellation • Adaptive Audio • Excellent Condition",                   price:9.51,  per:"weekly", image:"images/premium-tech-images/apple-airpods4.webp", badge:"Pick 6" },
-      { id:"macbook-air-m1",  name:"MacBook Air 13\" (M1 Chip)",     desc:"M1 Chip • 8GB RAM • 256GB SSD • Excellent Condition",                                price:21.23, per:"weekly", image:"images/premium-tech-images/macbook-air.webp", badge:"Pick 7" },
-      { id:"watch-series-9",  name:"Apple Watch Series 9 (GPS) 45mm",desc:"Always-On Retina Display • Health and Fitness Tracking • Excellent Condition",       price:23.74, per:"weekly", image:"images/premium-tech-images/apple-watch-series.webp", badge:"Pick 8" }
+      { id:"iphone-14",       name:"iPhone 14 — 128GB",              desc:"6.1\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:30.52, per:"weekly", image:"images/premium-tech-images/iphone-14.webp", badge:"Pick Item 1" },
+      { id:"iphone-14-plus",  name:"iPhone 14 Plus — 128GB",         desc:"6.7\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:34.95, per:"weekly", image:"images/premium-tech-images/iphone-14-plus.webp", badge:"Pick Item 2" },
+      { id:"iphone-15",       name:"iPhone 15 — 128GB",              desc:"6.1\" Super Retina XDR • A16 Bionic Chip • Excellent Condition",                     price:41.13, per:"weekly", image:"images/premium-tech-images/iphone-15.webp", badge:"Pick Item 3" },
+      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"images/premium-tech-images/samsung-galaxyzflip-5.webp", badge:"Pick Item 4" },
+      { id:"ipad-10th-gen",   name:"Apple iPad 10th Gen — 64GB",     desc:"11\" Liquid Retina Display • A16 Bionic Chip • Wi-Fi • Excellent Condition",         price:43.03, per:"weekly", image:"images/premium-tech-images/apple-ipad10th-gen.webp", badge:"Pick Item 5" },
+      { id:"airpods-4",       name:"Apple AirPods 4 (ANC)",          desc:"Active Noise Cancellation • Adaptive Audio • Excellent Condition",                   price:9.51,  per:"weekly", image:"images/premium-tech-images/apple-airpods4.webp", badge:"Pick Item 6" },
+      { id:"macbook-air-m1",  name:"MacBook Air 13\" (M1 Chip)",     desc:"M1 Chip • 8GB RAM • 256GB SSD • Excellent Condition",                                price:21.23, per:"weekly", image:"images/premium-tech-images/macbook-air.webp", badge:"Pick Item 7" },
+      { id:"watch-series-9",  name:"Apple Watch Series 9 (GPS) 45mm",desc:"Always-On Retina Display • Health and Fitness Tracking • Excellent Condition",       price:23.74, per:"weekly", image:"images/premium-tech-images/apple-watch-series.webp", badge:"Pick Item 8", bestSeller:true }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   },
@@ -1215,14 +1364,14 @@ const CATALOG = [
     blurb: "Congratulations, you're preapproved on any ONE of these items. Reserve yours now — payments are matched to your pay schedule over a 9–12 month finance period.",
     tag: "Preapproved — pick any one",
     items: [
-      { id:"evap-air-cooler",   name:"Portable Air Conditioner, Removable Water Tank Evaporative Air Cooler", desc:"2.6Gal Water Tank 3-in-1 Quiet Cooling Fan with Humidification & Timer, Low Energy Swamp Cooler for Bedroom, Office, Home", price:5.49,  per:"weekly", image:"images/summer-special/portable-air-con.webp", badge:"Pick 1", from:true },
-      { id:"lg-8000-btu-ac",    name:"LG 8,000 BTU (SACC) Portable Air Conditioner",                          desc:"Ultra Quiet 3-in-1 AC with Remote, LED Display, Auto Evaporation, 24-Hr Timer & Auto Restart, Cools Rooms up to 350 Sq. Ft, White", price:19.33, per:"weekly", image:"images/summer-special/lg-portable-aircon.webp", badge:"Pick 2", from:true },
-      { id:"euhomy-12v-fridge", name:"EUHOMY 12 Volt Refrigerator",                                           desc:"11-Quart (10L) Smart Portable Car Fridge & Freezer for Camping, RV & Travel", price:8.36,  per:"weekly", image:"images/summer-special/euhomy-volt-refrigerator.webp", badge:"Pick 3", from:true },
-      { id:"bougerv-cooler",    name:"BougeRV Electric Cooler",                                                desc:"30-Quart (22L) portable car fridge/freezer with fast cooling, adjustable -8°F to 50°F temperature, quiet 45 dB operation, and AC/DC power compatibility", price:12.51, per:"weekly", image:"images/summer-special/bougeRV-elec-cooler.webp", badge:"Pick 4", from:true },
-      { id:"bose-qc-headphones",name:"Bose QuietComfort Headphones",                                           desc:"Wireless Bluetooth Headphones, Active Over-Ear Noise Cancelling and Mic, USB-C Charging, Deep Bass, Up to 24 Hours of Playtime, Black", price:14.54, per:"weekly", image:"images/summer-special/bose-head.webp", badge:"Pick 5", from:true },
-      { id:"skullcandy-anc-2",  name:"Skullcandy Crusher ANC 2 Noise Cancelling Wireless Headphones",          desc:"Multi-Sensory Crusher Bass, Over-Ear Fit, Bluetooth, 60 Hours Battery, Working Out, Gym, Travel, Studying, Music, Gaming", price:14.59, per:"weekly", image:"images/summer-special/skullcandy-head.webp", badge:"Pick 6", from:true },
-      { id:"bose-qc-earbuds-blk",name:"Bose QuietComfort Earbuds — Black",                                     desc:"True Wireless Bluetooth Earbuds with Active Noise Cancellation and Mic, USB-C Charging, IPX4 Rating, Up to 8.5 Hours of Playtime, Black", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-black.webp", badge:"Pick 7", from:true },
-      { id:"bose-qc-earbuds-wht",name:"Bose QuietComfort Earbuds — White (Renewed)",                           desc:"Wireless Bluetooth in-ear headphones with personalized noise cancellation and premium sound (Renewed)", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-white.webp", badge:"Pick 8", from:true }
+      { id:"evap-air-cooler",   name:"Portable Air Conditioner, Removable Water Tank Evaporative Air Cooler", desc:"2.6Gal Water Tank 3-in-1 Quiet Cooling Fan with Humidification & Timer, Low Energy Swamp Cooler for Bedroom, Office, Home", price:5.49,  per:"weekly", image:"images/summer-special/portable-air-con.webp", badge:"Pick Item 1", from:true },
+      { id:"lg-8000-btu-ac",    name:"LG 8,000 BTU (SACC) Portable Air Conditioner",                          desc:"Ultra Quiet 3-in-1 AC with Remote, LED Display, Auto Evaporation, 24-Hr Timer & Auto Restart, Cools Rooms up to 350 Sq. Ft, White", price:19.33, per:"weekly", image:"images/summer-special/lg-portable-aircon.webp", badge:"Pick Item 2", from:true },
+      { id:"euhomy-12v-fridge", name:"EUHOMY 12 Volt Refrigerator",                                           desc:"11-Quart (10L) Smart Portable Car Fridge & Freezer for Camping, RV & Travel", price:8.36,  per:"weekly", image:"images/summer-special/euhomy-volt-refrigerator.webp", badge:"Pick Item 3", from:true },
+      { id:"bougerv-cooler",    name:"BougeRV Electric Cooler",                                                desc:"30-Quart (22L) portable car fridge/freezer with fast cooling, adjustable -8°F to 50°F temperature, quiet 45 dB operation, and AC/DC power compatibility", price:12.51, per:"weekly", image:"images/summer-special/bougeRV-elec-cooler.webp", badge:"Pick Item 4", from:true },
+      { id:"bose-qc-headphones",name:"Bose QuietComfort Headphones",                                           desc:"Wireless Bluetooth Headphones, Active Over-Ear Noise Cancelling and Mic, USB-C Charging, Deep Bass, Up to 24 Hours of Playtime, Black", price:14.54, per:"weekly", image:"images/summer-special/bose-head.webp", badge:"Pick Item 5", from:true },
+      { id:"skullcandy-anc-2",  name:"Skullcandy Crusher ANC 2 Noise Cancelling Wireless Headphones",          desc:"Multi-Sensory Crusher Bass, Over-Ear Fit, Bluetooth, 60 Hours Battery, Working Out, Gym, Travel, Studying, Music, Gaming", price:14.59, per:"weekly", image:"images/summer-special/skullcandy-head.webp", badge:"Pick Item 6", from:true },
+      { id:"bose-qc-earbuds-blk",name:"Bose QuietComfort Earbuds — Black",                                     desc:"True Wireless Bluetooth Earbuds with Active Noise Cancellation and Mic, USB-C Charging, IPX4 Rating, Up to 8.5 Hours of Playtime, Black", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-black.webp", badge:"Pick Item 7", from:true },
+      { id:"bose-qc-earbuds-wht",name:"Bose QuietComfort Earbuds — White (Renewed)",                           desc:"Wireless Bluetooth in-ear headphones with personalized noise cancellation and premium sound (Renewed)", price:12.19, per:"weekly", image:"images/summer-special/bose-ear-white.webp", badge:"Pick Item 8", from:true }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   },
@@ -1288,7 +1437,10 @@ const ICONS = {
   image: svg(`<rect x="3" y="4" width="18" height="16" rx="2.5"/>
               <circle cx="8.6" cy="9.6" r="1.7"/>
               <path d="m3.6 17.4 4.6-4.3a2 2 0 0 1 2.7 0l3 2.8m0 0 1.7-1.6a2 2 0 0 1 2.7 0l2 1.9m-6.4-.3 6.4.3"/>`),
-  zoom: svg(`<circle cx="10.5" cy="10.5" r="6.75"/><path d="m15.5 15.5 4.75 4.75M8 10.5h5m-2.5-2.5v5"/>`)
+  zoom: svg(`<circle cx="10.5" cy="10.5" r="6.75"/><path d="m15.5 15.5 4.75 4.75M8 10.5h5m-2.5-2.5v5"/>`),
+  // same filled star as the header's "VIP Special Access" pill, reused so
+  // every gold/starred callout on the page reads as one visual language
+  star: `<svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.5 5.4 5.9.7-4.4 4 1.2 5.8L12 15.6 6.8 18.5 8 12.7 3.6 8.7l5.9-.7z"/></svg>`
 };
 
 /* The magnifier that sits in the corner of every real product photo. It is
@@ -1427,9 +1579,12 @@ function cardHTML(it){
       ? zoomImgHTML(it.image, it.name, it.desc) + ZOOM_HINT
       : `<div class="media-placeholder">${ICONS.image}Add image:<br><code>${it.id}.jpg</code></div>`;
   return `
-  <article class="glass card" data-card="${it.id}">
+  <article class="glass card${it.bestSeller ? " is-best-seller" : ""}" data-card="${it.id}">
     <div class="card-media${(it.parts && it.parts.length) ? " is-bundle" : ""}">
-      ${it.badge ? `<span class="badge ${it.hot?"hot":""}">${it.badge}</span>` : ""}
+      ${(it.badge || it.bestSeller) ? `<div class="badge-stack">
+        ${it.badge ? `<span class="badge ${it.hot?"hot":""}">${it.badge}</span>` : ""}
+        ${it.bestSeller ? `<span class="badge-best">${ICONS.star} Best Seller</span>` : ""}
+      </div>` : ""}
       ${media}
     </div>
     <div class="card-body">
@@ -1736,8 +1891,57 @@ lightbox.addEventListener("click", e => { if(!e.target.closest(".lb-figure img")
 document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return;
   if(lightbox.classList.contains("open")) closeLightbox();
+  else if(dealsModal.classList.contains("open")) closeDeals();
   else if(drawer.classList.contains("open")) closeCart();
 });
+
+/* ---------- top 5 deals ----------
+   Cheapest five weekly payments across the two straight-purchase
+   sections (bundles are excluded — they price a pair of items, not
+   one deal). Recomputed each time the modal opens, so it always
+   reflects whatever CATALOG currently says. */
+const dealsModal = el("#dealsModal"), dealsScrim = el("#dealsScrim");
+const DEALS_SEEN_KEY = "goloans-deals-seen";
+let dealsLastFocus = null;
+
+function topDeals(n = 5){
+  return CATALOG
+    .filter(sec => sec.id === "tech" || sec.id === "special")
+    .flatMap(sec => sec.items)
+    .slice()
+    .sort((a, b) => a.price - b.price)
+    .slice(0, n);
+}
+
+function renderDeals(){
+  el("#dealsGrid").innerHTML = topDeals(5).map((it, i) => {
+    // Cloned so the rank badge never overwrites the "Pick Item N" badge
+    // the same object shows on its home section's card.
+    const clone = Object.assign({}, it, { badge: `#${i + 1} cheapest`, hot: i === 0 });
+    return cardHTML(clone);
+  }).join("");
+}
+
+function openDeals(){
+  dealsLastFocus = document.activeElement;
+  renderDeals();
+  dealsModal.classList.add("open"); dealsScrim.classList.add("open");
+  dealsModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("deals-open");
+  el("#closeDeals").focus();
+  // marks it seen whether the shopper opened it themselves or the
+  // 4-second auto-popup did, so the auto-popup never fires twice
+  try{ sessionStorage.setItem(DEALS_SEEN_KEY, "1"); }catch(err){}
+}
+function closeDeals(){
+  dealsModal.classList.remove("open"); dealsScrim.classList.remove("open");
+  dealsModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("deals-open");
+  if(dealsLastFocus) dealsLastFocus.focus();
+}
+el("#promoBanner").addEventListener("click", openDeals);
+el("#closeDeals").addEventListener("click", closeDeals);
+dealsScrim.addEventListener("click", closeDeals);
 
 /* keep focus inside the drawer while it is open */
 drawer.addEventListener("keydown", e => {
@@ -1966,6 +2170,17 @@ renderDeck();
 renderCatalog();
 syncAll();
 startAutoplay();
+
+/* Surface the cheapest picks 4 seconds after landing — once per tab,
+   and only if the shopper hasn't already opened the deals themselves
+   (from the promo banner) in the meantime. */
+let dealsAlreadySeen = false;
+try{ dealsAlreadySeen = !!sessionStorage.getItem(DEALS_SEEN_KEY); }catch(err){}
+if(!dealsAlreadySeen){
+  setTimeout(() => {
+    if(!dealsModal.classList.contains("open")) openDeals();
+  }, 4000);
+}
 
 </script>
 </body>
