@@ -986,12 +986,13 @@ body{padding-bottom:104px}
    IMAGE LIGHTBOX
    ------------------------------------------------------------
    Tapping any product photo — a whole-card shot or one half of a
-   bundle — blows it up here. It sits above the drawer (z-index 90)
-   and the toast (100) so it can also be opened from a card that is
-   behind the open cart.
+   bundle — blows it up here. It sits above the drawer (z-index 90),
+   the toast (100) and the Top 5 Deals modal (130) so the magnifier
+   still enlarges the photo on top of everything when a card is
+   opened from inside that popup, not behind it.
    ============================================================ */
 .lightbox{
-  position:fixed;inset:0;z-index:130;
+  position:fixed;inset:0;z-index:140;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1rem;padding:clamp(1rem,4vw,2.5rem);
   background:rgba(27,18,5,.82);
@@ -1100,6 +1101,23 @@ body.lightbox-open{overflow:hidden}
 .deals-sub{margin:0;padding:0 1.4rem 1.1rem;color:var(--ink-soft);font-weight:500;font-size:1.02rem}
 .deals-body{overflow-y:auto;padding:0 1.4rem 1.5rem;-webkit-overflow-scrolling:touch}
 .deals-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+/* The full spec line is dropped here to keep each tile short — tap the
+   magnifier on the photo to see it again, as the caption under the
+   enlarged photo (zoomImgHTML always passes it through as that caption). */
+.deals-grid .card-desc{display:none}
+/* "As low as" only ever qualified the Summer Special bundle pricing;
+   in this popup it just adds noise above a plain per-item price. */
+.deals-grid .price-from{display:none}
+/* A short title leaves the button sitting right under the price, a long
+   one pushes it down a full extra line — different heights in the same
+   row. Pinning it to the bottom of the (grid-stretched, equal-height)
+   card body levels every button in a row regardless of title length. */
+.deals-grid .card-actions{margin-top:auto}
+@media (max-width:660px){
+  /* Two tiles per row instead of one, matching the main catalog's phone
+     layout, now that dropping the spec line leaves the room for it. */
+  .deals-grid{gap:.8rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 body.deals-open{overflow:hidden}
 
 /* ============================================================
@@ -1247,7 +1265,7 @@ body.drawer-open{overflow:hidden}
       <span class="label" id="totalLabel">Estimated total</span>
       <span class="value" id="cartTotal">$0.00</span>
     </div>
-    <button class="btn-submit" id="toForm" disabled>Continue — send my list</button>
+    <button class="btn-submit" id="toForm" disabled>Submit my Order</button>
     <p class="fineprint">You will not be charged. We email your list to our team and an agent replies to confirm availability and next steps.</p>
   </div>
 
@@ -1350,7 +1368,7 @@ const CATALOG = [
       { id:"iphone-14",       name:"iPhone 14 — 128GB",              desc:"6.1\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:30.52, per:"weekly", image:"images/premium-tech-images/iphone-14.webp", badge:"Pick Item 1" },
       { id:"iphone-14-plus",  name:"iPhone 14 Plus — 128GB",         desc:"6.7\" Super Retina XDR • A15 Bionic Chip • Excellent Condition",                     price:34.95, per:"weekly", image:"images/premium-tech-images/iphone-14-plus.webp", badge:"Pick Item 2" },
       { id:"iphone-15",       name:"iPhone 15 — 128GB",              desc:"6.1\" Super Retina XDR • A16 Bionic Chip • Excellent Condition",                     price:41.13, per:"weekly", image:"images/premium-tech-images/iphone-15.webp", badge:"Pick Item 3" },
-      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"images/premium-tech-images/samsung-galaxyzflip-5.webp", badge:"Pick Item 4" },
+      { id:"galaxy-z-flip5",  name:"Samsung Galaxy Z Flip5 — 256GB", desc:"6.7\" Dynamic AMOLED 2X • Snapdragon 8 Gen 2 • Like-New Condition",                  price:22.15, per:"weekly", image:"images/premium-tech-images/samsung-galaxyzflip-5.webp", badge:"Pick Item 4", bestSeller:true },
       { id:"ipad-10th-gen",   name:"Apple iPad 10th Gen — 64GB",     desc:"11\" Liquid Retina Display • A16 Bionic Chip • Wi-Fi • Excellent Condition",         price:43.03, per:"weekly", image:"images/premium-tech-images/apple-ipad10th-gen.webp", badge:"Pick Item 5" },
       { id:"airpods-4",       name:"Apple AirPods 4 (ANC)",          desc:"Active Noise Cancellation • Adaptive Audio • Excellent Condition",                   price:9.51,  per:"weekly", image:"images/premium-tech-images/apple-airpods4.webp", badge:"Pick Item 6" },
       { id:"macbook-air-m1",  name:"MacBook Air 13\" (M1 Chip)",     desc:"M1 Chip • 8GB RAM • 256GB SSD • Excellent Condition",                                price:21.23, per:"weekly", image:"images/premium-tech-images/macbook-air.webp", badge:"Pick Item 7" },
@@ -1395,10 +1413,10 @@ const CATALOG = [
         parts:[ { name:"Pressure Washer", full:"TOPALL Cordless Pressure Washer Max", image:"images/summer-bundle-images/bundle-6/TOPALL-cordless-pressure-washer-max.webp" }, { name:"Handheld Car Vacuum", full:"Handheld Car Vacuum Cleaner, Cordless Powerful", image:"images/summer-bundle-images/bundle-6/handheld-car-vacuum-cleaner-cordless-powerful.webp" } ] },
       { id:"bundle-7", name:"Pop Up Camping Tent + Charcoal Grill",          desc:"EchoSmile Instant Pop Up Tent, 4-6 Person Camping Tent • Portable Charcoal Grill",          price:9.00,  per:"weekly", from:true, badge:"Bundle 7", note:"Bundle of 2 items",
         parts:[ { name:"Pop Up Camping Tent", full:"EchoSmile Instant Pop Up Tent, 4-6 Person Camping Tent", image:"images/summer-bundle-images/bundle-7/echosmile-instant-pop-up-tent.webp" }, { name:"Charcoal Grill", full:"Portable Charcoal Grill", image:"images/summer-bundle-images/bundle-7/portable-charcoal-grill.webp" } ] },
-      { id:"bundle-8", name:"Anker Power Station + 12V Refrigerator",        desc:"Anker SOLIX C200 DC Portable Power Station • EUHOMY 12 Volt Refrigerator",                  price:15.55, per:"weekly", from:true, badge:"Bundle 8", note:"Bundle of 2 items",
-        parts:[ { name:"Anker Power Station", full:"Anker SOLIX C200 DC Portable Power Station", image:"images/summer-bundle-images/bundle-8/anker-solix-c200-portable-power-station.webp" }, { name:"12V Refrigerator", full:"EUHOMY 12 Volt Refrigerator", image:"images/summer-bundle-images/bundle-8/euhomy-12-volt-refrigerator.webp" } ] },
-      { id:"bundle-9", name:"Anker Power Station + Mini Projector",          desc:"Anker SOLIX C200 DC Portable Power Station • Toptro Mini Projector",                        price:14.11, per:"weekly", from:true, badge:"Bundle 9", note:"Bundle of 2 items",
-        parts:[ { name:"Anker Power Station", full:"Anker SOLIX C200 DC Portable Power Station", image:"images/summer-bundle-images/bundle-9/anker-solix-c200-portable-power-station.webp" }, { name:"Mini Projector", full:"Toptro Mini Projector", image:"images/summer-bundle-images/bundle-9/toptro-mini-projector.webp" } ] }
+      { id:"bundle-8", name:"200W Anker Power Station + 12V Refrigerator",        desc:"Anker SOLIX C200 DC 200W Portable Power Station • EUHOMY 12 Volt Refrigerator",                  price:15.55, per:"weekly", from:true, badge:"Bundle 8", note:"Bundle of 2 items",
+        parts:[ { name:"200W Anker Power Station", full:"Anker SOLIX C200 DC 200W Portable Power Station", image:"images/summer-bundle-images/bundle-8/anker-solix-c200-portable-power-station.webp" }, { name:"12V Refrigerator", full:"EUHOMY 12 Volt Refrigerator", image:"images/summer-bundle-images/bundle-8/euhomy-12-volt-refrigerator.webp" } ] },
+      { id:"bundle-9", name:"200W Anker Power Station + Mini Projector",          desc:"Anker SOLIX C200 DC 200W Portable Power Station • Toptro Mini Projector",                        price:14.11, per:"weekly", from:true, badge:"Bundle 9", note:"Bundle of 2 items",
+        parts:[ { name:"200W Anker Power Station", full:"Anker SOLIX C200 DC 200W Portable Power Station", image:"images/summer-bundle-images/bundle-9/anker-solix-c200-portable-power-station.webp" }, { name:"Mini Projector", full:"Toptro Mini Projector", image:"images/summer-bundle-images/bundle-9/toptro-mini-projector.webp" } ] }
     ],
     fineprint: "*Limited Quantities: In the event an item is sold out, it may be substituted for an item of similar or greater value. Finance period is over 9–12 months. Ask our Customer Service Agent for more available gadgets and other options."
   }
@@ -1484,7 +1502,7 @@ const PART_LETTERS = "abcdefgh";
 
 /* ---------- small thumbnails: the drawer line and the fly-to-cart chip ----
    A bundle used to lend these its first part's art alone, which read as
-   "Anker Power Station + 12V Refrigerator" next to a picture of only the
+   "200W Anker Power Station + 12V Refrigerator" next to a picture of only the
    power station. They now show every product in the bundle side by side, so
    the tile says the same thing the card does.
    The cells are laid out by grid; the column count and the tile width come
