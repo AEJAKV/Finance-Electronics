@@ -99,6 +99,10 @@ body{
   overflow-x:clip;
 }
 img{max-width:100%;display:block}
+/* Cross-browser gotcha: some engines don't apply the HTML `hidden`
+   attribute's UA display:none to inline <svg> — the header hamburger's
+   icon swap relies on it actually hiding, so make it explicit. */
+svg[hidden]{display:none}
 h1,h2,h3{line-height:1.2;margin:0 0 .4em;letter-spacing:-.005em}
 h1{font-family:var(--display);font-size:clamp(2.35rem,5.4vw,4.05rem);font-weight:700;line-height:1.06;letter-spacing:-.005em}
 h2{font-family:var(--display);font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:700;letter-spacing:0}
@@ -191,23 +195,12 @@ button{font:inherit}
 }
 .header-spacer{flex:1}
 
-/* ---- trust-badge subrow: 0% badge + VIP pill ----
-   The phone number stays on the logo's row (see .header-call below) —
-   it's the one thing that has to stay reachable at a glance. These two
-   sit together as one flex item so on a narrow phone they drop as a
-   pair onto their own centered line under the bar, instead of each
-   fighting the logo for room on the same row. */
+/* ---- trust-badge subrow: 0% badge + VIP pill (desktop/tablet only —
+   under 660px .header-bar hands off to .header-bar-mobile below) ---- */
 .header-subrow{
   position:relative;z-index:1;
   display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
   gap:.6rem;
-}
-@media (max-width:660px){
-  /* Force the subrow onto its own line under logo+phone, regardless of
-     whether it would technically still fit — a phone-width header reads
-     better as two clean rows than one crowded one. */
-  .header-bar{flex-wrap:wrap;row-gap:.6rem}
-  .header-subrow{flex-basis:100%;justify-content:center}
 }
 
 /* ---- 0% interest badge ----
@@ -272,6 +265,70 @@ button{font:inherit}
    instead of shrinking the type into the unreadable. */
 @media (max-width:360px){
   .header-promo,.header-call,.header-note{white-space:normal;text-align:center;line-height:1.15;padding:.35rem .6rem}
+}
+
+/* ============================================================
+   PHONE HEADER  (<=660px) — hamburger / centered logo / icons
+   .header-bar (the pill row above) is hidden entirely below 660px in
+   favour of this: a hamburger on the left that reveals the phone
+   number and offers, the logo centered, and two quick-glance icons —
+   a call button and a "0%" badge — on the right. Same net-a-porter-
+   style layout as most mobile storefronts.
+   ============================================================ */
+.header-bar-mobile{display:none}
+.header-menu-panel{display:none}
+@media (max-width:660px){
+  .header-bar{display:none}
+  .header-bar-mobile{
+    position:relative;isolation:isolate;
+    display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.6rem;
+    min-height:64px;padding:.5rem .6rem;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.5);
+    -webkit-backdrop-filter:blur(26px) saturate(200%) brightness(1.05);
+    backdrop-filter:blur(26px) saturate(200%) brightness(1.05);
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.54) 46%,rgba(255,255,255,.7) 100%),
+      linear-gradient(115deg,rgba(255,239,201,.45),rgba(221,243,230,.4) 55%,rgba(255,230,210,.45));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.95),
+      inset 0 -1px 0 rgba(255,255,255,.55),
+      0 10px 26px -18px rgba(4,32,22,.5),
+      0 2px 8px -6px rgba(4,32,22,.28);
+  }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .header-bar-mobile{background:rgba(255,255,255,.95)}
+  }
+  .header-mobile-brand{grid-column:2;justify-self:center;display:flex;min-height:var(--tap)}
+  .header-mobile-brand img{height:clamp(26px,7vw,34px);width:auto;filter:drop-shadow(0 1px 2px rgba(70,45,15,.18))}
+  .header-mobile-icons{grid-column:3;display:flex;align-items:center;gap:.5rem}
+  .header-hamburger,.header-icon-btn{
+    grid-column:1;
+    width:44px;height:44px;flex:none;border-radius:14px;
+    display:grid;place-items:center;cursor:pointer;text-decoration:none;
+    background:rgba(255,255,255,.6);border:1px solid var(--glass-line);
+    color:var(--brand-deep);
+  }
+  .header-hamburger svg,.header-icon-btn svg{width:20px;height:20px}
+  .header-icon-promo{
+    font-weight:800;font-size:.92rem;letter-spacing:-.02em;
+    color:#fff;border-color:transparent;
+    background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
+  }
+  /* Collapsed by default; JS toggles this class on the hamburger tap.
+     Sits below the bar in normal flow — it pushes the hero down rather
+     than floating over it, so nothing is ever hidden underneath it. */
+  .header-menu-panel.open{
+    display:flex;flex-direction:column;align-items:stretch;gap:.6rem;
+    margin-top:.6rem;padding:1rem;
+    border-radius:20px;border:1px solid var(--glass-line);
+    background:var(--glass-strong);
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+    box-shadow:var(--shadow);
+  }
+  .header-menu-panel .header-call,
+  .header-menu-panel .header-promo,
+  .header-menu-panel .header-note{justify-content:center}
 }
 
 /* ============================================================
@@ -1222,6 +1279,41 @@ body.drawer-open{overflow:hidden}
           VIP Special Access
         </span>
       </div>
+    </div>
+
+    <!-- Phone-only bar: hamburger reveals the phone number + offers,
+         logo centered, quick-glance icons on the right. Swaps in for
+         .header-bar above at narrow widths (see CSS). -->
+    <div class="header-bar-mobile">
+      <button class="header-hamburger" id="headerMenuBtn" type="button" aria-expanded="false" aria-controls="headerMenuPanel" aria-label="Show phone number and offers">
+        <svg class="ico-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <svg class="ico-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" hidden><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+      <a class="header-mobile-brand" href="#top" aria-label="GoLoans — home">
+        <img src="images/goloans-logo.png" alt="GoLoans">
+      </a>
+      <div class="header-mobile-icons">
+        <a class="header-icon-btn" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+        </a>
+        <button class="header-icon-btn header-icon-promo" id="headerPromoIcon" type="button" aria-label="0% interest financing available — show details">0%</button>
+      </div>
+    </div>
+
+    <!-- Collapsed by default; the hamburger reveals it -->
+    <div class="header-menu-panel" id="headerMenuPanel">
+      <a class="header-call" href="tel:+18664784199">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+        +1 (866) 478-4199
+      </a>
+      <span class="header-promo">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.6 2.3c.4-.4 1-.6 1.5-.6h6.6c.6 0 1 .4 1 1v6.6c0 .6-.2 1.1-.6 1.5l-9.7 9.7a2 2 0 0 1-2.8 0l-6.6-6.6a2 2 0 0 1 0-2.8l9.7-9.7zM17 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+        0% Interest
+      </span>
+      <span class="header-note">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.5 5.4 5.9.7-4.4 4 1.2 5.8L12 15.6 6.8 18.5 8 12.7 3.6 8.7l5.9-.7z"/></svg>
+        VIP Special Access
+      </span>
     </div>
   </div>
 </header>
@@ -2248,6 +2340,36 @@ deck.addEventListener("focusin", stopAutoplay);
 deck.addEventListener("focusout", startAutoplay);
 document.addEventListener("visibilitychange", () => {
   if(document.hidden) stopAutoplay(); else startAutoplay();
+});
+
+/* ---------- phone header menu ----------
+   The hamburger and the "0%" icon both reveal the same panel (the
+   phone number + both offers); the phone icon beside them is a plain
+   tel: link, not a toggle. */
+const headerMenuBtn = el("#headerMenuBtn"), headerMenuPanel = el("#headerMenuPanel");
+function setHeaderMenu(open){
+  headerMenuPanel.classList.toggle("open", open);
+  headerMenuBtn.setAttribute("aria-expanded", String(open));
+  headerMenuBtn.querySelector(".ico-open").hidden = open;
+  headerMenuBtn.querySelector(".ico-close").hidden = !open;
+}
+headerMenuBtn.addEventListener("click", () => {
+  setHeaderMenu(!headerMenuPanel.classList.contains("open"));
+});
+el("#headerPromoIcon").addEventListener("click", () => setHeaderMenu(true));
+document.addEventListener("click", e => {
+  if(!headerMenuPanel.classList.contains("open")) return;
+  if(e.target.closest(".header-bar-mobile, .header-menu-panel")) return;
+  setHeaderMenu(false);
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && headerMenuPanel.classList.contains("open")) setHeaderMenu(false);
+});
+/* A resize past the phone breakpoint (rotating a tablet, say) leaves the
+   panel both open and invisible — closing it keeps state consistent
+   for whichever bar is showing when the shopper goes back down. */
+window.addEventListener("resize", () => {
+  if(window.innerWidth > 660 && headerMenuPanel.classList.contains("open")) setHeaderMenu(false);
 });
 
 /* ---------- go ---------- */
