@@ -1,0 +1,10 @@
+# Secrets: the Resend key and recipient list live in Vercel env vars.
+# A local .env is for testing only and must never reach the repo.
+.env
+.env.*
+!.env.example
+
+# Vercel CLI
+.vercel
+
+node_modules/

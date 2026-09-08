@@ -1440,14 +1440,24 @@ body.drawer-open{overflow:hidden}
 
   <!-- STEP 2: the form -->
   <div class="drawer-body" id="formStep" hidden>
-    <form id="leadForm" name="catalog-request" method="POST"
-          data-netlify="true" netlify-honeypot="bot-field" action="/thank-you/">
-      <!-- ---- Netlify Forms configuration ----
-           form-name must match the form's name attribute: Netlify pairs the
-           POST body back to the form it detected at deploy time.
-           Recipients are configured in the Netlify dashboard, not here. -->
-      <input type="hidden" name="form-name" value="catalog-request">
-      <p hidden><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+    <form id="leadForm" name="catalog-request" method="POST" action="https://api.web3forms.com/submit">
+      <!-- ---- Web3Forms configuration ----
+           The access key is public by design: it only identifies which form
+           a submission belongs to, and Web3Forms rejects posts from origins
+           other than the one registered against it. Recipients live in the
+           Web3Forms dashboard, so changing who receives leads needs no
+           code change and no redeploy. -->
+      <input type="hidden" name="access_key" value="06a9a13c-f43f-46a9-8541-3e14884ccd98">
+      <input type="hidden" name="subject" value="New Summer Catalog request">
+      <input type="hidden" name="from_name" value="Finance Electronics catalog">
+      <input type="hidden" name="redirect" value="https://finance-electronics.vercel.app/thank-you/">
+      <!-- Reply-To is filled with the customer's own address at submit time,
+           so an agent can answer the lead straight from the notification
+           rather than copying the address out of the email body. -->
+      <input type="hidden" name="replyto" id="replytoField">
+      <!-- Web3Forms' honeypot: a real person never sees it, so anything that
+           ticks it is a bot and the submission is dropped. -->
+      <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" aria-hidden="true">
       <!-- filled in by JS at submit time -->
       <input type="hidden" name="Selected items" id="itemsField">
       <input type="hidden" name="Estimated total" id="totalField">
@@ -2150,6 +2160,7 @@ drawer.addEventListener("keydown", e => {
 el("#leadForm").addEventListener("submit", e => {
   if(cart.size === 0){ e.preventDefault(); showStep("cart"); return; }
   el("#itemsField").value = lineSummary();
+  el("#replytoField").value = el("#f-email").value.trim();
   /* The emailed total carries the billing unit too, so the agent reading the
      request sees the same figure the customer confirmed rather than a bare
      number that looks like a one-off price. */
