@@ -1440,13 +1440,14 @@ body.drawer-open{overflow:hidden}
 
   <!-- STEP 2: the form -->
   <div class="drawer-body" id="formStep" hidden>
-    <form id="leadForm" action="https://formsubmit.co/sales@goloans.ca" method="POST">
-      <!-- ---- FormSubmit configuration ---- -->
-      <input type="hidden" name="_subject" value="New Summer Catalog request">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_next" value="https://finance-electronics.vercel.app/thank-you/">
-      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+    <form id="leadForm" name="catalog-request" method="POST"
+          data-netlify="true" netlify-honeypot="bot-field" action="/thank-you/">
+      <!-- ---- Netlify Forms configuration ----
+           form-name must match the form's name attribute: Netlify pairs the
+           POST body back to the form it detected at deploy time.
+           Recipients are configured in the Netlify dashboard, not here. -->
+      <input type="hidden" name="form-name" value="catalog-request">
+      <p hidden><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
       <!-- filled in by JS at submit time -->
       <input type="hidden" name="Selected items" id="itemsField">
       <input type="hidden" name="Estimated total" id="totalField">
