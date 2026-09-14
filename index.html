@@ -855,7 +855,7 @@ body{padding-bottom:104px}
 .price-per{font-size:1.05rem;font-weight:700;color:var(--accent-deep)}
 .price-was{font-size:1.05rem;color:var(--ink-soft);text-decoration:line-through}
 .price-note{font-size:1rem;color:var(--ink-soft);font-weight:600}
-.section-fineprint{margin:1.3rem 0 0;font-size:1rem;line-height:1.55;color:var(--ink-soft);font-weight:500}
+.section-fineprint{margin:1.3rem 0 0;font-size:.875rem;line-height:1.55;color:var(--ink-soft);font-weight:500;opacity:.78}
 
 .card-actions{margin-top:1rem;display:flex;gap:.6rem;align-items:center}
 /* Action = solid orange fill, white text.
@@ -917,6 +917,10 @@ body{padding-bottom:104px}
     /* three lines keeps every card in a row the same height */
     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
   }
+  /* Sits below the card grid, not inside a card — it's a disclaimer, so it
+     should read smaller and quieter than the product specs above it, not
+     louder (1rem was actually larger than .card-desc's clamp on phones). */
+  .section-fineprint{font-size:clamp(.68rem,2.3vw,.78rem);line-height:1.45;margin-top:1rem}
   .price-row{gap:.15rem .4rem;margin-top:.5rem}
   .price{font-size:clamp(1.12rem,4.6vw,1.5rem)}
   .price-per{font-size:clamp(.8rem,2.9vw,.98rem)}
