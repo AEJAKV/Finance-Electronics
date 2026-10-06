@@ -173,7 +173,7 @@ button{font:inherit;font-family:var(--font-heading)}
 /* ============================================================
    HEADER
    One sticky bar. From 768px: logo left, the three section links
-   in the centre, phone and list buttons right. On phones the
+   in the centre, then search, phone and list on the right. On phones the
    links drop to a second row of pill tabs under the logo row,
    scrolling sideways, and the two rows stick together.
    ============================================================ */
@@ -254,6 +254,90 @@ button{font:inherit;font-family:var(--font-heading)}
 /* a tap on a section link glides there, unless the visitor prefers no motion */
 @media (prefers-reduced-motion:no-preference){
   html{scroll-behavior:smooth}
+}
+
+/* ---- search ------------------------------------------------------------
+   From 1024px: a light-grey pill in the header, with its results dropping
+   down beneath it. Below that there is only room for a magnifier button,
+   which slides a full-width search bar down from under the header. Same
+   input, same results list, either way. ---------------------------------- */
+.search-field{
+  display:flex;align-items:center;gap:var(--space-2);height:44px;padding:0 14px;
+  border:1px solid transparent;border-radius:var(--radius-pill);background:var(--bg);color:var(--text-muted);
+  transition:background .15s ease,border-color .15s ease;
+}
+.search-field svg{flex:none;width:18px;height:18px}
+.search-field:focus-within{background:var(--surface);border-color:var(--brand);outline:3px solid var(--brand);outline-offset:2px}
+/* 16px so iOS doesn't zoom the page when the field is tapped */
+.search-input{
+  flex:1;min-width:0;height:100%;padding:0;border:0;background:none;
+  color:var(--text);font:inherit;font-size:1rem;
+}
+.search-input:focus-visible{outline:none}            /* the ring is drawn on the pill instead */
+.search-input::placeholder{color:var(--text-muted)}
+.search-input::-webkit-search-cancel-button{display:none}
+.search-row{display:flex;align-items:center;gap:var(--space-2)}
+.search-row .search-field{flex:1;min-width:0}   /* min-width:0 lets the pill be narrower than the input's built-in width */
+
+/* results */
+.search-results{border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);overflow:auto}
+.search-results[hidden]{display:none}
+.search-item{
+  display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);
+  color:var(--text);text-decoration:none;
+}
+.search-item + .search-item{border-top:1px solid var(--border)}
+.search-item:hover,.search-item.is-active{background:var(--bg)}
+.search-item img{flex:none;width:40px;height:40px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-sunken)}
+.search-item-body{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.search-item-name{
+  font-size:var(--fs-title);font-weight:600;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.search-item .price{font-size:var(--fs-title)}
+.search-none{margin:0;padding:var(--space-4);color:var(--text-muted);font-size:var(--fs-title);line-height:1.5}
+.search-none a,.shop-empty a{color:var(--brand);font-weight:600;white-space:nowrap}
+
+/* phones and tablets: the bar hangs below the header and slides into view */
+@media (max-width:1023px){
+  .search{
+    position:absolute;left:0;right:0;top:100%;z-index:1;
+    padding:var(--space-2) 1.25rem var(--space-3);
+    background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-md);
+    /* visible at once on opening (so the field can take focus and bring up
+       the keyboard), hidden only after the slide-out has finished */
+    transform:translateY(-12px);opacity:0;visibility:hidden;pointer-events:none;
+    transition:transform .2s ease,opacity .2s ease,visibility 0s .2s;
+  }
+  .search.open{transform:none;opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+  .search-results{margin-top:var(--space-2);max-height:min(56vh,420px)}
+}
+@media (min-width:1024px){
+  /* (.site-header in front so this outranks .icon-btn's own display) */
+  .site-header .search-toggle,.site-header .search-close{display:none}
+  .search{position:relative;width:200px}
+  .search-results{
+    position:absolute;top:calc(100% + 8px);right:0;width:360px;max-height:70vh;
+    box-shadow:var(--shadow-lg);
+  }
+}
+/* 768–1279px: with the links in the middle and search on the right, the
+   phone button goes back to being a plain icon — that keeps everything on
+   one row and the links centred. The number returns at 1280px. */
+@media (min-width:768px) and (max-width:1279px){
+  .site-header .header-call{width:44px;padding:0;gap:0;justify-content:center;border-radius:50%}
+  .header-call-num{display:none}
+}
+
+/* in the shop: the line that says what the grid is showing, and the empty grid */
+.search-status{
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-1) var(--space-3);
+  margin:0 0 var(--space-3);font-size:var(--fs-title);
+}
+.search-status[hidden]{display:none}
+.shop-empty{
+  grid-column:1 / -1;margin:0;padding:var(--space-8) var(--space-4);text-align:center;
+  border:1px dashed var(--border-strong);border-radius:var(--radius-md);background:var(--surface);color:var(--text-muted);
 }
 
 /* ---- New Arrivals: a small holding note until there is something to show ---- */
@@ -360,7 +444,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
    headline, description, offers and button on the page itself.
    From 1024px: one big rounded card. The photo sits against its
    right edge at full height; the left is the photo's own beige,
-   continued, with a soft light wash so dark text reads on it.
+   continued, under a dark filter with white text on it.
    The headline block sits in that left area, and the two product
    cards float over the photo, each tied to a pulsing dot on the
    thing it sells.
@@ -373,6 +457,13 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 /* cropped toward the right on a phone, which keeps her face, the headphones
    and the phone in the frame and drops only empty wall */
 .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:97% 30%}
+/* Dark filter, part 1 — on the photo itself at every size: a light tint over
+   all of it. (Below 1024px a soft darker edge on the left is added to match
+   the desktop look; the text there sits outside the photo, so it stays dark.) */
+.hero-photo::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.25)}
+@media (max-width:1023px){
+  .hero-photo::after{background:linear-gradient(90deg,rgba(0,0,0,.3) 0%,rgba(0,0,0,0) 45%),rgba(0,0,0,.25)}
+}
 
 /* ---- the two pictured products ---- */
 .hero-picks{order:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}
@@ -529,20 +620,24 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
             mask-image:linear-gradient(90deg,transparent 0,#000 15%);
   }
   .hero-photo img{object-position:center}
-  /* Light wash behind the text: a full-height band down the left, and a
-     wider one across the top-left where the headline runs above the phone.
-     The wall is a mid tan, and without the wash neither the green words nor
-     the grey description would have enough contrast. */
-  .hero-card::before,.hero-card::after{content:"";position:absolute;left:0;top:0;z-index:1;pointer-events:none}
+  /* Dark filter, part 2 — desktop only, where the text sits on the photo.
+     Two bands of about 50% black on top of the 25% tint (roughly 60% in
+     all), both fading to nothing before they reach her face:
+       ::before  full height, as wide as the description under the headline
+       ::after   the top half only, reaching further right behind the wider
+                 headline, which sits above the phone
+     The second is shaped so that where the two meet they add up to one even
+     band rather than a darker stripe. */
+  .hero-card::before,.hero-card::after{content:"";position:absolute;left:0;top:0;z-index:1;height:100%;pointer-events:none}
   .hero-card::before{
-    width:46%;height:100%;
-    background:linear-gradient(90deg,rgba(255,250,245,.88) 0%,rgba(255,250,245,.88) 72%,rgba(255,250,245,0) 100%);
+    width:100%;
+    background:linear-gradient(90deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.5) 30%,rgba(0,0,0,0) 44%);
   }
   .hero-card::after{
-    width:62%;height:54%;
-    background:linear-gradient(90deg,rgba(255,250,245,.88) 0%,rgba(255,250,245,.88) 72%,rgba(255,250,245,0) 100%);
-    -webkit-mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
-            mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
+    width:60%;
+    background:linear-gradient(90deg,rgba(0,0,0,0) 50%,rgba(0,0,0,.333) 61.7%,rgba(0,0,0,.5) 73.3%,rgba(0,0,0,.5) 77.5%,rgba(0,0,0,0) 100%);
+    -webkit-mask-image:linear-gradient(180deg,#000 54%,transparent 62%);
+            mask-image:linear-gradient(180deg,#000 54%,transparent 62%);
   }
 
   .hero-copy{
@@ -550,7 +645,17 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
     display:flex;flex-direction:column;justify-content:center;
     padding-left:clamp(1.75rem,4vw,3rem);
   }
-  .hero h1{font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;margin-bottom:var(--space-3)}
+  .hero h1{
+    font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;margin-bottom:var(--space-3);
+    color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.35);
+  }
+  /* the two phrases keep the brand green; the token is here so it can be
+     swapped for a brighter tint on this dark background in one place */
+  .hero .scribble{color:var(--hero-green,var(--brand))}
+  .hero p.lede{color:rgba(255,255,255,.85);text-shadow:0 1px 10px rgba(0,0,0,.35)}
+  /* the two offer badges become solid white pills so they read on the photo */
+  .hero-offers .tag{border-color:transparent;background:rgba(255,255,255,.94);color:var(--text)}
+  .hero-offers .tag-brand{color:var(--brand)}
   .hero-br{display:inline}
   /* narrower than the headline: from here down the phone is alongside */
   .hero p.lede,.hero-offers,.hero-actions{max-width:min(30ch,68%)}
@@ -715,12 +820,17 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   padding:var(--space-2);background:var(--surface);
 }
 .card-media.is-multi img{min-height:0;object-fit:contain}
+/* The "+" between the two photos. It sits exactly on the corner where the
+   second photo meets the first (that photo starts 40% across and 40% down),
+   and is drawn from two bars so it is always centred and crisp. */
 .pair-plus{
-  position:absolute;z-index:1;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:22px;height:22px;border-radius:50%;
-  display:grid;place-items:center;
-  background:var(--text);color:#fff;box-shadow:0 0 0 2px var(--surface);
-  font-family:var(--font-heading);font-size:.9rem;font-weight:700;line-height:1;
+  position:absolute;z-index:1;left:40%;top:40%;transform:translate(-50%,-50%);
+  width:24px;height:24px;border-radius:50%;font-size:0;
+  background:
+    linear-gradient(#fff,#fff) center / 10px 2px no-repeat,
+    linear-gradient(#fff,#fff) center / 2px 10px no-repeat,
+    var(--text);
+  box-shadow:0 0 0 2px var(--surface);
 }
 .media-placeholder{display:grid;place-items:center;width:100%;height:100%;color:var(--text-subtle)}
 .media-placeholder .ico{width:36px;height:36px;stroke-width:1.5}
@@ -820,10 +930,12 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   background:var(--surface);
 }
 .stepper button{
-  width:44px;height:44px;border:0;border-radius:6px;cursor:pointer;
-  background:transparent;color:var(--brand);font-size:1.4rem;font-weight:700;line-height:1;
+  display:grid;place-items:center;
+  width:44px;height:44px;padding:0;border:0;border-radius:6px;cursor:pointer;
+  background:transparent;color:var(--brand);
   transition:background .14s ease;
 }
+.stepper .ico{width:16px;height:16px;stroke-width:2.6}
 .stepper button:hover{background:var(--brand-tint)}
 .stepper .qty{min-width:34px;text-align:center;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-body);font-variant-numeric:tabular-nums}
 
@@ -1192,6 +1304,7 @@ body.detail-open{overflow:hidden}
   color:#fff;font-size:1.9rem;line-height:1;font-family:inherit;
 }
 .lb-close:hover{background:rgba(255,255,255,.3)}
+.lb-close svg{width:22px;height:22px}
 body.lightbox-open{overflow:hidden}
 
 /* ============================================================
@@ -1228,6 +1341,23 @@ body.drawer-open{overflow:hidden}
       <a class="nav-link" href="#bundles" data-nav="deals" data-deals-tab="bundles">Bundles</a>
     </nav>
     <div class="header-actions">
+      <!-- the magnifier only exists below 1024px, where it opens the search bar -->
+      <button class="icon-btn search-toggle" id="searchToggle" type="button" aria-label="Search items" aria-expanded="false" aria-controls="searchBox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+      </button>
+      <!-- a pill in the header from 1024px; a bar that slides down under the header below that -->
+      <div class="search" id="searchBox" role="search">
+        <div class="search-row">
+          <label class="search-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+            <span class="sr-only">Search items</span>
+            <input class="search-input" id="searchInput" type="search" placeholder="Search items" autocomplete="off" spellcheck="false" enterkeyhint="search"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
+          </label>
+          <button class="icon-btn search-close" id="searchClose" type="button" aria-label="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="search-results" id="searchResults" aria-label="Matching items" hidden></div>
+      </div>
       <a class="icon-btn header-call" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
         <span class="header-call-num" aria-hidden="true">+1 (866) 478-4199</span>
@@ -1304,6 +1434,10 @@ body.drawer-open{overflow:hidden}
       <h2>Shop all items</h2>
       <p class="shop-count" id="shopCount" aria-live="polite"></p>
     </div>
+    <p class="search-status" id="searchStatus" aria-live="polite" hidden>
+      <span id="searchSummary"></span>
+      <button class="btn-link" id="searchClear" type="button">Clear search</button>
+    </p>
     <div class="chips" id="chips" role="group" aria-label="Filter items by category"></div>
     <div class="grid" id="shopGrid"></div>
     <p class="section-fineprint" id="shopFineprint"></p>
@@ -1339,7 +1473,7 @@ body.drawer-open{overflow:hidden}
 
 <!-- ============================ IMAGE LIGHTBOX ============================ -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged product photo" aria-hidden="true">
-  <button class="lb-close" id="lbClose" type="button" aria-label="Close photo">&times;</button>
+  <button class="lb-close" id="lbClose" type="button" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
   <figure class="lb-figure">
     <img id="lbImg" src="" alt="">
     <figcaption class="lb-cap" id="lbCap"></figcaption>
@@ -1350,7 +1484,7 @@ body.drawer-open{overflow:hidden}
 <div class="pd" id="pd" role="dialog" aria-modal="true" aria-labelledby="pdTitle" aria-hidden="true">
   <div class="pd-backdrop" id="pdBackdrop"></div>
   <div class="pd-sheet">
-    <button class="icon-btn pd-close" id="pdClose" type="button" aria-label="Close product">×</button>
+    <button class="icon-btn pd-close" id="pdClose" type="button" aria-label="Close product"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <div class="pd-scroll" id="pdScroll"><div id="pdBody"></div></div>
     <div class="pd-bar">
       <button class="icon-btn pd-list" id="pdList" type="button" aria-label="Open my list">
@@ -1372,7 +1506,7 @@ body.drawer-open{overflow:hidden}
 <aside class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true">
   <div class="drawer-head">
     <h2 id="drawerTitle">Your selection</h2>
-    <button class="icon-btn" id="closeCart" aria-label="Close cart">×</button>
+    <button class="icon-btn" id="closeCart" aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
   </div>
 
   <!-- STEP 1: the list -->
@@ -1991,6 +2125,7 @@ const ICONS = {
   cart: svg(`<path d="M2.75 3.25h1.9a1 1 0 0 1 .98.8l.42 2.05m0 0 1.55 7.46a2 2 0 0 0 1.96 1.59h7.53a2 2 0 0 0 1.95-1.53l1.36-5.6a1 1 0 0 0-.97-1.24z"/>
              <circle cx="10" cy="20" r="1.55"/><circle cx="17.5" cy="20" r="1.55"/>`),
   plus: svg(`<path d="M12 5v14M5 12h14"/>`),
+  minus: svg(`<path d="M5 12h14"/>`),
   trash: svg(`<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l.8 11.6a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9L17.5 7M10 11v5.5M14 11v5.5"/>`),
   image: svg(`<rect x="3" y="4" width="18" height="16" rx="2.5"/>
               <circle cx="8.6" cy="9.6" r="1.7"/>
@@ -2013,6 +2148,7 @@ const el = sel => document.querySelector(sel);
 /* ---------- shop: category chips + the grid they filter ---------- */
 const ALL_ITEMS = CATALOG.flatMap(sec => sec.items);
 let activeCat = "all";
+let searchQuery = "";     // set by pressing Enter in the search; while set, the grid shows its matches
 
 function inCategory(it, cat){
   return cat === "all" || (it.cats || []).includes(cat);
@@ -2027,12 +2163,19 @@ function renderChips(){
 }
 
 function renderShop(){
-  const items = ALL_ITEMS.filter(it => inCategory(it, activeCat));
-  el("#shopGrid").innerHTML = items.map(it => cardHTML(it)).join("");
-  el("#shopCount").textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+  const items = searchQuery ? searchItems(searchQuery) : ALL_ITEMS.filter(it => inCategory(it, activeCat));
+  const count = `${items.length} item${items.length === 1 ? "" : "s"}`;
+  el("#shopGrid").innerHTML = items.length
+    ? items.map(it => cardHTML(it)).join("")
+    : `<p class="shop-empty">${NO_RESULTS_HTML}</p>`;
+  el("#shopCount").textContent = count;
+  el("#searchStatus").hidden = !searchQuery;
+  el("#searchSummary").textContent = searchQuery ? `Showing results for '${searchQuery}' (${count})` : "";
 }
 
+/* Choosing a category ends any search: the grid shows one or the other. */
 function setFilter(cat){
+  if(searchQuery){ searchQuery = ""; el("#searchInput").value = ""; }
   activeCat = CATEGORIES.some(c => c.id === cat) ? cat : "all";
   document.querySelectorAll("#chips .chip").forEach(c =>
     c.setAttribute("aria-pressed", String(c.dataset.cat === activeCat)));
@@ -2146,7 +2289,7 @@ function cardHTML(it, lead, eager){
     `<img src="${attr(src)}" alt="${attr(label)}" width="600" height="600" loading="${eager ? "eager" : "lazy"}" decoding="async"${first ? zoom : ""}>`;
   const media = parts.length > 1
     ? parts.map((p, i) => photo(p.image, p.full || p.name, i === 0)).join("") +
-      (parts.length === 2 ? `<span class="pair-plus" aria-hidden="true">+</span>` : "")
+      (parts.length === 2 ? `<span class="pair-plus" aria-hidden="true"></span>` : "")
     : (it.image || parts.length)
       ? photo(it.image || parts[0].image, it.name, true)
       : `<div class="media-placeholder">${ICONS.image}</div>`;
@@ -2332,9 +2475,9 @@ function renderLines(){
             ${q > 1 ? `<span class="line-sub">${money(it.price)}${unit} each</span>` : ""}
           </p>
           <div class="stepper">
-            <button type="button" data-dec="${id}" aria-label="${attr(`Remove one ${it.name}`)}">−</button>
+            <button type="button" data-dec="${id}" aria-label="${attr(`Remove one ${it.name}`)}">${ICONS.minus}</button>
             <span class="qty" aria-label="Quantity">${q}</span>
-            <button type="button" data-inc="${id}" aria-label="${attr(`Add one more ${it.name}`)}">+</button>
+            <button type="button" data-inc="${id}" aria-label="${attr(`Add one more ${it.name}`)}">${ICONS.plus}</button>
           </div>
         </div>
       </div>
@@ -2945,6 +3088,169 @@ function syncToTop(){ toTop.classList.toggle("show", window.scrollY > 600); }
 window.addEventListener("scroll", syncToTop, { passive:true });
 syncToTop();
 toTop.addEventListener("click", () => window.scrollTo({ top:0, behavior: reduceMotion ? "auto" : "smooth" }));
+
+/* ============================================================
+   SEARCH
+   Matches on an item's name and on its categories, ignoring
+   upper/lower case; every word typed has to be found. Typing
+   shows up to six matches under the field; Enter sends the whole
+   set of matches to the shop grid.
+   ============================================================ */
+const searchBox = el("#searchBox"), searchInput = el("#searchInput"),
+      searchList = el("#searchResults"), searchToggle = el("#searchToggle");
+const NO_RESULTS_HTML = `No items found. Call us at <a href="tel:+18664784199">+1 (866) 478-4199</a> and we'll check for you.`;
+
+/* what each item can be found by: the words of its name, and its categories
+   (both the id and the label, so "laptop" finds "Laptops & Tablets") */
+const toWords = str => str.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+const searchText = new Map(ALL_ITEMS.map(it => {
+  const cats = (it.cats || []).map(c => c + " " + ((CATEGORIES.find(x => x.id === c) || {}).label || "")).join(" ");
+  return [it.id, { all: (it.name + " " + cats).toLowerCase(), name: toWords(it.name), cats: toWords(cats) }];
+}));
+
+/* Every word typed must appear somewhere in the name or categories. Best
+   matches first: a word of the name starting with what was typed, then a
+   category, then a match buried inside a longer word ("phone" finds the
+   phones before it finds headphones). */
+function searchItems(query){
+  const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if(!words.length) return [];
+  const starts = (list, w) => list.some(x => x.startsWith(w));
+  return ALL_ITEMS
+    .map((it, i) => {
+      const t = searchText.get(it.id);
+      if(!words.every(w => t.all.includes(w))) return null;
+      const rank = words.every(w => starts(t.name, w)) ? 0
+                 : words.every(w => starts(t.name, w) || starts(t.cats, w)) ? 1 : 2;
+      return { it, rank, i };
+    })
+    .filter(Boolean)
+    .sort((x, y) => x.rank - y.rank || x.i - y.i)
+    .map(x => x.it);
+}
+
+/* ---------- the dropdown ---------- */
+let searchActive = -1;                    // which result the arrow keys are on; -1 = none
+
+function closeSearchList(){
+  searchList.hidden = true;
+  searchList.innerHTML = "";
+  searchList.removeAttribute("role");
+  searchInput.setAttribute("aria-expanded", "false");
+  searchInput.removeAttribute("aria-activedescendant");
+  searchActive = -1;
+}
+
+function renderSearchList(){
+  const q = searchInput.value.trim();
+  if(!q){ closeSearchList(); return; }
+  const hits = searchItems(q).slice(0, 6);
+  searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
+  if(hits.length){
+    searchList.setAttribute("role", "listbox");
+    searchList.innerHTML = hits.map((it, i) => {
+      const photo = it.image || (thumbParts(it)[0] || {}).image || "";
+      const unit = it.per ? `<span class="price-per">/${UNIT_SHORT[it.per] || it.per}</span>` : "";
+      return `
+      <a class="search-item" id="searchOpt${i}" role="option" aria-selected="false" tabindex="-1" href="#item/${it.id}" data-open="${it.id}">
+        ${photo ? `<img src="${attr(photo)}" alt="" width="64" height="64">` : ""}
+        <span class="search-item-body">
+          <span class="search-item-name">${attr(it.name)}</span>
+          <span><span class="price">${money(it.price)}</span>${unit}</span>
+        </span>
+      </a>`;
+    }).join("");
+  } else {
+    searchList.removeAttribute("role");
+    searchList.innerHTML = `<p class="search-none" role="status">${NO_RESULTS_HTML}</p>`;
+  }
+  searchList.hidden = false;
+  searchInput.setAttribute("aria-expanded", "true");
+}
+
+function moveSearchActive(step){
+  const opts = [...searchList.querySelectorAll(".search-item")];
+  if(!opts.length) return;
+  searchActive = (searchActive + step + opts.length + (searchActive < 0 && step < 0 ? 1 : 0)) % opts.length;
+  opts.forEach((o, i) => { o.classList.toggle("is-active", i === searchActive); o.setAttribute("aria-selected", String(i === searchActive)); });
+  searchInput.setAttribute("aria-activedescendant", opts[searchActive].id);
+  opts[searchActive].scrollIntoView({ block:"nearest" });
+}
+
+/* ---------- opening and closing ---------- */
+const searchIsBar = () => window.matchMedia("(max-width:1023px)").matches;   // the slide-down layout
+
+function openSearch(){
+  searchBox.classList.add("open");
+  searchToggle.setAttribute("aria-expanded", "true");
+  searchInput.focus();                     // inside the tap, so a phone brings up its keyboard
+  renderSearchList();
+}
+/* `refocus`: put focus back on the magnifier (after Escape or the X) */
+function closeSearch(refocus){
+  closeSearchList();
+  const wasBar = searchBox.classList.contains("open");
+  searchBox.classList.remove("open");
+  searchToggle.setAttribute("aria-expanded", "false");
+  if(searchBox.contains(document.activeElement)){
+    if(refocus && wasBar && searchIsBar()) searchToggle.focus();
+    else document.activeElement.blur();
+  }
+}
+
+/* ---------- Enter: show every match in the shop grid ---------- */
+function applySearch(query){
+  searchQuery = query.trim();
+  activeCat = "all";
+  document.querySelectorAll("#chips .chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.cat === "all")));
+  renderShop();
+  closeSearch(false);
+  el("#shop").scrollIntoView();
+}
+function clearSearch(){
+  searchQuery = "";
+  searchInput.value = "";
+  closeSearchList();
+  renderShop();
+}
+
+/* ---------- events ---------- */
+searchToggle.addEventListener("click", () => searchBox.classList.contains("open") ? closeSearch(true) : openSearch());
+el("#searchClose").addEventListener("click", () => closeSearch(true));
+el("#searchClear").addEventListener("click", clearSearch);
+searchInput.addEventListener("input", renderSearchList);
+searchInput.addEventListener("focus", renderSearchList);
+searchInput.addEventListener("keydown", e => {
+  if(e.key === "ArrowDown" || e.key === "ArrowUp"){
+    e.preventDefault();
+    if(searchList.hidden) renderSearchList();
+    moveSearchActive(e.key === "ArrowDown" ? 1 : -1);
+  } else if(e.key === "Enter"){
+    e.preventDefault();
+    const picked = searchList.querySelectorAll(".search-item")[searchActive];
+    if(picked){ const id = picked.dataset.open; closeSearch(false); openItem(id); }
+    else if(searchInput.value.trim()) applySearch(searchInput.value);
+  } else if(e.key === "Escape"){
+    e.stopPropagation();                   // this Escape is for the search, nothing behind it
+    closeSearch(true);
+  }
+});
+/* Escape from anywhere else inside the search (the X, the phone link in "No items found") */
+searchBox.addEventListener("keydown", e => {
+  if(e.key === "Escape" && e.target !== searchInput){ e.stopPropagation(); closeSearch(true); }
+});
+/* a result was chosen with the pointer: the page's card handler opens the
+   product; all that is left to do here is put the search away */
+searchList.addEventListener("click", e => { if(e.target.closest(".search-item")) closeSearch(false); });
+/* focus or a click going anywhere outside the search puts the dropdown away
+   (and, on a phone, the bar with it) */
+searchBox.addEventListener("focusout", e => {
+  if(e.relatedTarget && !searchBox.contains(e.relatedTarget) && e.relatedTarget !== searchToggle) closeSearch(false);
+});
+document.addEventListener("pointerdown", e => {
+  if(!searchBox.contains(e.target) && !searchToggle.contains(e.target) && (searchBox.classList.contains("open") || !searchList.hidden)) closeSearch(false);
+});
 
 /* ---------- header nav: which link is "on" ----------
    A link is on while its section is the one being looked at. Flash Deals
