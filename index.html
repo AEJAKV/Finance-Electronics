@@ -664,10 +664,12 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   }
   /* On the dark photo the two phrases use the brighter tint (the normal brand
      green is close to invisible here), and the button matches them. Its
-     label is dark, because white on this green would be too faint to read. */
+     label is white with a faint shadow: white on this green is only about
+     2.2:1, so the shadow is there to give the letters an edge. Hover goes a
+     shade darker, which helps the label rather than hurting it. */
   .hero .scribble{color:var(--hero-green)}
-  .hero-actions .btn-primary{--pulse:76,198,43;background:var(--hero-green);color:var(--text)}
-  .hero-actions .btn-primary:hover:not(:disabled){background:#62D442}
+  .hero-actions .btn-primary{--pulse:76,198,43;background:var(--hero-green);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .hero-actions .btn-primary:hover:not(:disabled){background:#40B321}
   .hero p.lede{color:rgba(255,255,255,.85);text-shadow:0 1px 10px rgba(0,0,0,.35)}
   /* the two offer badges become solid white pills so they read on the photo */
   .hero-offers .tag{border-color:transparent;background:rgba(255,255,255,.94);color:var(--text)}
