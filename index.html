@@ -454,13 +454,12 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .hero-actions{margin-top:var(--space-2)}
   .hero-actions .btn{width:100%}
 
-  /* Flash Deals moves up: less space above it, and its heading and note
-     share one line */
+  /* Deals moves up: less space above it, and only the tabs on its heading line */
   .deals{padding-top:var(--space-3)}
   .deals-head{margin-bottom:var(--space-2)}
-  .deals-sub{font-size:var(--fs-label)}
-  .deals-sub-lead{display:none}
-  .deals-sub::first-letter{text-transform:uppercase}
+  /* (.deals in front so these outrank the general tab rules further down) */
+  .deals .deals-tab{padding-bottom:4px;font-size:1.25rem}
+  .deals .deals-sub{display:none}      /* the tabs take the heading line; no room for the note */
 }
 /* Short phones (iPhone SE and similar, 667px tall): the same layout a notch
    tighter, which is what gets the first deal cards onto the first screen. */
@@ -589,12 +588,31 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 }
 
 /* ============================================================
-   FLASH DEALS  —  one sideways-scrolling row under the hero
+   DEALS  —  two tabs over one sideways-scrolling row of cards:
+   "Flash Deals" (the featured five) and "Bundles" (every bundle
+   in the catalog)
    ============================================================ */
 .deals{padding-top:var(--space-5)}
 .deals-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-1) var(--space-3);margin-bottom:var(--space-3)}
-.deals-head h2{margin:0}
+/* the tabs double as the section's visible heading, so they are heading-sized */
+.deals-tabs{display:flex;gap:var(--space-5)}
+.deals-tab{
+  position:relative;padding:0 0 6px;border:0;background:none;cursor:pointer;
+  color:var(--text-muted);font-size:var(--fs-h2);font-weight:700;line-height:1.2;letter-spacing:-.01em;white-space:nowrap;
+  transition:color .15s ease;
+}
+.deals-tab::before{content:"";position:absolute;inset:-8px -4px}   /* a taller target to tap */
+.deals-tab::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px;
+  background:var(--brand);transform:scaleX(0);transition:transform .18s ease;
+}
+.deals-tab:hover,.deals-tab[aria-selected="true"]{color:var(--text)}
+.deals-tab[aria-selected="true"]::after{transform:scaleX(1)}
 .deals-sub{margin:0;color:var(--text-muted);font-size:var(--fs-title)}
+/* each note, and the countdown, belongs to one tab */
+.deals[data-tab="flash-deals"] [data-for="bundles"],
+.deals[data-tab="bundles"] [data-for="flash-deals"],
+.deals[data-tab="bundles"] .deals-timer{display:none}
 /* only shown when DEALS_END holds a real, future end time */
 .deals-timer{
   display:inline-flex;align-items:center;gap:var(--space-2);margin:0 0 0 auto;
@@ -615,14 +633,23 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 }
 .deals-row::-webkit-scrollbar{display:none}
 .deals-row .card{flex:0 0 42%;scroll-snap-align:start}
+/* a tab with nothing in it yet */
+.deals-empty{
+  flex:1;margin:0;padding:var(--space-6) var(--space-4);text-align:center;
+  border:1px dashed var(--border-strong);border-radius:var(--radius-md);background:var(--surface);color:var(--text-muted);
+}
 @media (min-width:600px){
   .deals-row{gap:var(--space-3)}
   .deals-row .card{flex-basis:28%}
 }
-/* from here all five fit, so they share the row evenly */
+/* From here exactly five cards fill the row. The five flash deals fit with
+   nothing to scroll; the bundles carry on to the right, and a slim scrollbar
+   appears so that is obvious with a mouse. */
 @media (min-width:900px){
-  .deals-row{margin:0;padding:2px 2px var(--space-2)}
-  .deals-row .card{flex:1 1 0;min-width:0}
+  .deals-row{margin:0;padding:2px 2px var(--space-2);scroll-padding-left:2px;scrollbar-width:thin}
+  .deals-row::-webkit-scrollbar{display:block;height:8px}
+  .deals-row::-webkit-scrollbar-thumb{border-radius:4px;background:var(--border-strong)}
+  .deals-row .card{flex:0 0 calc((100% - 4 * var(--space-3)) / 5)}
 }
 
 /* ============================================================
@@ -1197,9 +1224,8 @@ body.drawer-open{overflow:hidden}
     <!-- centre of the bar from 768px; a row of pill tabs under it on phones -->
     <nav class="site-nav" id="siteNav" aria-label="Shop sections">
       <a class="nav-link" href="#new-arrivals" data-nav="new-arrivals">New Arrivals <span class="nav-soon">Soon</span></a>
-      <a class="nav-link" href="#deals" data-nav="deals">Flash Deals</a>
-      <!-- for now Bundles goes to the Flash Deals strip as well -->
-      <a class="nav-link" href="#deals" data-nav="deals">Bundles</a>
+      <a class="nav-link" href="#flash-deals" data-nav="deals" data-deals-tab="flash-deals">Flash Deals</a>
+      <a class="nav-link" href="#bundles" data-nav="deals" data-deals-tab="bundles">Bundles</a>
     </nav>
     <div class="header-actions">
       <a class="icon-btn header-call" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
@@ -1253,15 +1279,21 @@ body.drawer-open{overflow:hidden}
   </div>
 </section>
 
-<!-- ============================ FLASH DEALS (cards rendered by JS) ============================ -->
-<section class="section deals" id="deals" aria-labelledby="dealsTitle">
+<!-- ============================ DEALS: Flash Deals | Bundles (cards rendered by JS) ============================
+     Shared links: #flash-deals and #bundles open this section on that tab. -->
+<section class="section deals" id="deals" aria-labelledby="dealsTitle" data-tab="flash-deals">
   <div class="wrap">
+    <h2 class="sr-only" id="dealsTitle">Deals</h2>
     <div class="deals-head">
-      <h2 id="dealsTitle">Flash Deals</h2>
-      <p class="deals-sub"><span class="deals-sub-lead">Top 5 deals of the week, </span>lowest weekly payment first</p>
+      <div class="deals-tabs" role="tablist" aria-label="Deals">
+        <button class="deals-tab" id="tab-flash-deals" type="button" role="tab" data-deals-tab="flash-deals" aria-selected="true" aria-controls="dealsRow">Flash Deals</button>
+        <button class="deals-tab" id="tab-bundles" type="button" role="tab" data-deals-tab="bundles" aria-selected="false" aria-controls="dealsRow" tabindex="-1">Bundles</button>
+      </div>
+      <p class="deals-sub" data-for="flash-deals">Top 5 deals of the week, lowest weekly payment first</p>
+      <p class="deals-sub" data-for="bundles">Two items, one weekly payment</p>
       <p class="deals-timer" id="dealsTimer" hidden>Ends in <span class="deals-clock" id="dealsClock" role="timer"></span></p>
     </div>
-    <div class="deals-row" id="dealsRow"></div>
+    <div class="deals-row" id="dealsRow" role="tabpanel" aria-labelledby="tab-flash-deals"></div>
   </div>
 </section>
 
@@ -2466,11 +2498,74 @@ function topDeals(){
     .sort((a, b) => a.price - b.price);
 }
 
-function renderDeals(){
-  const deals = topDeals();
-  el("#deals").hidden = !deals.length;
-  el("#dealsRow").innerHTML = deals.map(it => cardHTML(it, null, true)).join("");   // first row on the page: load now
+/* Every bundle in the catalog, in catalog order. A bundle is any item that
+   lists the products inside it (`parts`), so adding one to CATALOG is all it
+   takes for it to appear here. */
+function bundleOffers(){
+  return ALL_ITEMS.filter(it => it.parts && it.parts.length);
 }
+
+/* ---------- deals: the two tabs ---------- */
+const DEAL_TABS = ["flash-deals", "bundles"];
+let dealsTab = "flash-deals";
+
+function renderDeals(){
+  const flash = dealsTab === "flash-deals";
+  const items = flash ? topDeals() : bundleOffers();
+  /* the flash deals are the first row on the page, so their photos load at
+     once; the bundles' photos wait until that tab is opened */
+  el("#dealsRow").innerHTML = items.length
+    ? items.map(it => cardHTML(it, null, flash)).join("")
+    : `<p class="deals-empty">${flash ? "Flash deals coming soon" : "Bundles coming soon"}</p>`;
+}
+
+function setDealsTab(tab){
+  if(!DEAL_TABS.includes(tab)) return;
+  const changed = tab !== dealsTab;
+  dealsTab = tab;
+  el("#deals").dataset.tab = tab;
+  document.querySelectorAll(".deals-tab").forEach(b => {
+    const on = b.dataset.dealsTab === tab;
+    b.setAttribute("aria-selected", String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+  el("#dealsRow").setAttribute("aria-labelledby", "tab-" + tab);
+  if(changed){ renderDeals(); el("#dealsRow").scrollLeft = 0; }
+  spyNav();          // the header link for this section follows the tab
+}
+
+/* Clicking a tab swaps the cards and puts the tab in the address (without
+   adding a step to the browser's history), so the page can be shared open
+   on Bundles. */
+el(".deals-tabs").addEventListener("click", e => {
+  const b = e.target.closest(".deals-tab");
+  if(!b) return;
+  setDealsTab(b.dataset.dealsTab);
+  history.replaceState(history.state, "", "#" + b.dataset.dealsTab);
+});
+/* left / right arrow keys move between the tabs, as tabs should */
+el(".deals-tabs").addEventListener("keydown", e => {
+  if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  e.preventDefault();
+  const next = DEAL_TABS[(DEAL_TABS.indexOf(dealsTab) + (e.key === "ArrowRight" ? 1 : DEAL_TABS.length - 1)) % DEAL_TABS.length];
+  setDealsTab(next);
+  history.replaceState(history.state, "", "#" + next);
+  el("#tab-" + next).focus();
+});
+
+/* #flash-deals and #bundles in the address: open that tab and go to the
+   section. Runs when the address changes and once when the page loads.
+   The one time it must NOT scroll is when the address has only just come
+   back from a product (#item/...): closing a product further down the page
+   should leave the visitor where they were, not jump up to the deals. */
+function routeDeals(e){
+  const tab = location.hash.slice(1);
+  if(!DEAL_TABS.includes(tab)) return;
+  setDealsTab(tab);
+  const fromProduct = e && e.oldURL && e.oldURL.includes("#item/");
+  if(!fromProduct) el("#deals").scrollIntoView();
+}
+window.addEventListener("hashchange", routeDeals);
 
 /* The countdown only exists when DEALS_END is a real moment that is still
    in the future. Empty, unreadable or already past: the timer stays hidden
@@ -2852,15 +2947,14 @@ syncToTop();
 toTop.addEventListener("click", () => window.scrollTo({ top:0, behavior: reduceMotion ? "auto" : "smooth" }));
 
 /* ---------- header nav: which link is "on" ----------
-   A link is on while its section is the one being looked at. Two links
-   (Flash Deals and Bundles) lead to the same section for now, so the one
-   that was actually clicked wins; arriving there by scrolling lights
-   Flash Deals. */
+   A link is on while its section is the one being looked at. Flash Deals
+   and Bundles share a section, so there the link that matches the open tab
+   is the one that lights. */
 const navLinks = [...document.querySelectorAll(".nav-link")];
-let navPicked = null, navHoldUntil = 0;
+let navHoldUntil = 0;
 function setActiveNav(section){
   const pool = navLinks.filter(a => a.dataset.nav === section);
-  const on = pool.includes(navPicked) ? navPicked : (pool[0] || null);
+  const on = pool.find(a => a.dataset.dealsTab === dealsTab) || pool[0] || null;
   navLinks.forEach(a => { if(a === on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
 }
 function spyNav(){
@@ -2874,10 +2968,20 @@ function spyNav(){
   }
   setActiveNav(current);
 }
-navLinks.forEach(a => a.addEventListener("click", () => {
-  navPicked = a;
-  navHoldUntil = Date.now() + 1200;
+navLinks.forEach(a => a.addEventListener("click", e => {
+  const tab = a.dataset.dealsTab;
+  if(tab){
+    /* Flash Deals / Bundles: open the tab, put it in the address, go there.
+       Done here rather than left to the link, so clicking the link for the
+       tab already in the address still scrolls back to the section. */
+    e.preventDefault();
+    if(location.hash !== "#" + tab) history.pushState(null, "", "#" + tab);
+    setDealsTab(tab);
+    el("#deals").scrollIntoView();
+  }
+  navHoldUntil = 0;
   setActiveNav(a.dataset.nav);
+  navHoldUntil = Date.now() + 1200;
   /* on a phone, bring the tapped tab fully into the row */
   const row = el("#siteNav");
   row.scrollTo({ left: a.offsetLeft - (row.clientWidth - a.offsetWidth) / 2, behavior: reduceMotion ? "auto" : "smooth" });
@@ -2898,6 +3002,7 @@ renderShop();
 el("#shopFineprint").textContent = CATALOG[0].fineprint;
 syncAll();
 route();   // a shared #item/... link opens straight onto that product
+routeDeals();   // a shared #flash-deals or #bundles link opens on that tab
 
 
 </script>
