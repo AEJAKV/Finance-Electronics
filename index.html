@@ -41,6 +41,7 @@
   /* --- colour: neutrals --- */
   --text:             #1F1F1F;   /* body text                                    */
   --text-muted:       #5F6368;   /* secondary text                               */
+  --text-secondary:   #474B50;   /* secondary text that must read easily: 8:1 on the page grey */
   --text-subtle:      #767676;   /* struck-through original price                */
   --border:           #E5E5E5;
   --border-strong:    #CFCFCF;   /* outlined buttons, inputs                     */
@@ -318,6 +319,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 .hero-pick-line{display:none;font-size:var(--fs-tag);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-pick-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;font-size:var(--fs-tag);color:var(--text-muted)}
 .hero-pick-amt{white-space:nowrap}
+.hero-pick-from--phone,.hero-pick-arrow{display:none}   /* phone layout only, see below */
 .hero-pick-price .price{font-size:var(--fs-title)}
 .hero-pick-price .price-per{font-size:var(--fs-tag)}
 
@@ -339,6 +341,64 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .hero-pick-img,.hero-pick-line{display:block}
   .hp-full{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}
   .hp-short{display:none}
+}
+
+/* ---- phones (under 768px) --------------------------------------------
+   A shorter 16:9 photo with the two product cards straddling its bottom
+   edge, a balanced headline, a full-width button, and tighter spacing all
+   the way down so the first Flash Deals cards reach the first screen even
+   on a 375 x 667 phone. Nothing here applies from 768px up. ------------- */
+@media (max-width:767px){
+  .hero{padding-top:var(--space-2)}
+  .hero-card{gap:var(--space-2)}
+  /* the photo is 16:9 itself, so this shows all of it: face, headphones
+     and phone, with nothing cropped */
+  .hero-photo{aspect-ratio:16/9}
+  .hero-photo img{object-position:center}
+
+  /* Half on the photo, half below it: the cards are 76px tall, so they are
+     pulled up 38px (plus the 8px gap above them). */
+  .hero-picks{position:relative;z-index:1;margin:-46px 6px 0}
+  .hero-pick{
+    gap:6px;min-height:76px;padding:6px;border-color:transparent;
+    box-shadow:0 6px 18px rgba(0,0,0,.16);
+  }
+  .hero-pick-img{display:block;width:32px;height:32px}
+  .hero-pick-body{flex:1}
+  .hero-pick-line{display:none}
+  .hp-full{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .hp-short{display:inline}
+  .hero-pick-from--phone{display:inline}
+  .hero-pick-arrow{display:block;flex:none;color:var(--text-subtle);font-size:1.25rem;line-height:1}
+
+  .hero h1{font-size:1.75rem;line-height:1.1;text-wrap:balance;margin-bottom:var(--space-2)}
+  .hero-br-wide{display:none}          /* let the browser balance the lines itself */
+  .hero p.lede{color:var(--text-secondary);font-size:var(--fs-title);line-height:1.45}
+  .hero-offers{margin-top:var(--space-2)}
+  .hero-actions{margin-top:var(--space-2)}
+  .hero-actions .btn{width:100%}
+
+  /* Flash Deals moves up: less space above it, and its heading and note
+     share one line */
+  .deals{padding-top:var(--space-3)}
+  .deals-head{margin-bottom:var(--space-2)}
+  .deals-sub{font-size:var(--fs-label)}
+  .deals-sub-lead{display:none}
+  .deals-sub::first-letter{text-transform:uppercase}
+}
+/* Short phones (iPhone SE and similar, 667px tall): the same layout a notch
+   tighter, which is what gets the first deal cards onto the first screen. */
+@media (max-width:767px) and (max-height:700px){
+  .hero-card{gap:6px}
+  .hero{padding-top:6px}
+  .hero-photo{aspect-ratio:1.9}
+  .hero-photo img{object-position:center 80%}   /* trims a sliver of wall above her, keeps the phone */
+  .hero-picks{margin-top:-44px}
+  .hero h1{font-size:1.625rem;margin-bottom:4px}
+  .hero p.lede{line-height:1.4}
+  .hero-offers,.hero-actions{margin-top:6px}
+  .hero-actions .btn{min-height:44px}
+  .deals{padding-top:var(--space-2)}
 }
 
 @media (min-width:1024px){
@@ -1044,7 +1104,7 @@ body.drawer-open{overflow:hidden}
     <div class="hero-card">
 
       <div class="hero-copy">
-        <h1>You're <span class="scribble">Preapproved</span><br>on Any <span class="scribble">one or more</span><br class="hero-br"> of these Items</h1>
+        <h1>You're <span class="scribble">Preapproved</span> <br class="hero-br-wide">on Any <span class="scribble">one or more</span><br class="hero-br"> of these Items</h1>
         <p class="lede">Payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies.</p>
         <div class="tags hero-offers">
           <span class="tag tag-brand">0% Interest</span>
@@ -1078,7 +1138,7 @@ body.drawer-open{overflow:hidden}
   <div class="wrap">
     <div class="deals-head">
       <h2 id="dealsTitle">Flash Deals</h2>
-      <p class="deals-sub">Top 5 deals of the week, lowest weekly payment first</p>
+      <p class="deals-sub"><span class="deals-sub-lead">Top 5 deals of the week, </span>lowest weekly payment first</p>
       <p class="deals-timer" id="dealsTimer" hidden>Ends in <span class="deals-clock" id="dealsClock" role="timer"></span></p>
     </div>
     <div class="deals-row" id="dealsRow"></div>
@@ -2247,6 +2307,8 @@ function renderHeroPicks(){
       const it = byId.get(p.id);
       const photo = it.image || (thumbParts(it)[0] || {}).image || "";
       const unit = it.per ? `<span class="price-per">/${UNIT_SHORT[it.per] || it.per}</span>` : "";
+      /* On phones both cards read "As low as $X/wk" so the pair matches; the
+         prefix is only shown elsewhere for items the catalog marks `from`. */
       /* the dot repeats the card's link for pointer users, so it is kept out
          of the tab order and away from screen readers */
       return `
@@ -2256,8 +2318,9 @@ function renderHeroPicks(){
         <span class="hero-pick-body">
           <span class="hero-pick-name"><span class="hp-full">${attr(it.name)}</span><span class="hp-short" aria-hidden="true">${attr(p.short || it.name)}</span></span>
           <span class="hero-pick-line">${attr(p.line)}</span>
-          <span class="hero-pick-price">${it.from ? `<span>As low as</span>` : ""}<span class="hero-pick-amt"><span class="price">${money(it.price)}</span>${unit}</span></span>
+          <span class="hero-pick-price"><span class="hero-pick-from${it.from ? "" : " hero-pick-from--phone"}">As low as</span><span class="hero-pick-amt"><span class="price">${money(it.price)}</span>${unit}</span></span>
         </span>
+        <span class="hero-pick-arrow" aria-hidden="true">›</span>
       </a>`;
     }).join("");
 }
