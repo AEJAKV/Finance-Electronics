@@ -5,80 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thank You — GoLoans.ca</title>
 <meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap">
 <style>
+/* Same tokens as the catalog page (../index.html) — keep the two in step. */
 :root{
-  --brand:            #16A34A;
-  --brand-deep:       #15803D;
-  --accent:           #F97316;
-  --accent-deep:      #C2410C;
-  --ink:              #1B1205;
-  --ink-soft:         #4A4034;
-  --cream:            #FFFBF2;
-  --wash-peach:       #FFE6D2;
-  --wash-mango:       #FFEFC9;
-  --wash-mint:        #DDF3E6;
-  --glass:            rgba(255,255,255,.85);
-  --glass-line:       rgba(255,255,255,.9);
-  --shadow-lg:        0 24px 60px -20px rgba(70,45,15,.34);
-  --radius:           20px;
+  --brand:            #137103;
+  --brand-strong:     #0E5602;
+  --text:             #1F1F1F;
+  --text-muted:       #5F6368;
+  --border:           #E5E5E5;
+  --border-strong:    #CFCFCF;
+  --bg:               #F5F5F5;
+  --surface:          #FFFFFF;
+  --radius-sm:        8px;
+  --radius-md:        12px;
+  --shadow-md:        0 4px 14px rgba(0,0,0,.08);
   --tap:              52px;
-  --font-sans: ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-heading:     'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-body:        'Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
 body{
   margin:0;min-height:100dvh;
-  font-family:var(--font-sans);color:var(--ink);
+  font-family:var(--font-body);color:var(--text);
   display:flex;align-items:center;justify-content:center;padding:1.5rem;
-  background:
-    radial-gradient(1100px 620px at 12% -10%, var(--wash-peach), transparent 60%),
-    radial-gradient(900px 560px at 105% 10%, var(--wash-mint), transparent 55%),
-    linear-gradient(180deg, var(--wash-mango) 0%, var(--cream) 55%);
+  background:var(--bg);
 }
 img{max-width:100%;display:block}
-p{margin:0 0 1rem;line-height:1.6}
+p{margin:0 0 1rem;line-height:1.55}
 .card{
   width:min(560px,100%);text-align:center;
-  background:var(--glass);border:1px solid var(--glass-line);
-  border-radius:var(--radius);box-shadow:var(--shadow-lg);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-md);
   padding:clamp(1.75rem,5vw,3rem);
-  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
 }
 .brand{display:inline-flex;margin-bottom:1.5rem}
 .brand img{height:34px;width:auto}
 .check{
   width:76px;height:76px;margin:0 auto 1.25rem;border-radius:50%;
   display:grid;place-items:center;
-  background:linear-gradient(135deg,#22C55E 0%,#16A34A 50%,#15803D 100%);
-  box-shadow:0 14px 28px -10px rgba(21,128,61,.55);
+  background:var(--brand);
 }
 .check svg{width:38px;height:38px}
 h1{
-  margin:0 0 .9rem;font-size:clamp(1.6rem,4.4vw,2.15rem);
-  font-weight:700;line-height:1.15;letter-spacing:-.005em;
+  margin:0 0 .9rem;font-family:var(--font-heading);font-size:clamp(1.5rem,4.4vw,2rem);
+  font-weight:800;line-height:1.15;letter-spacing:-.01em;
 }
-.lede{font-size:clamp(1.05rem,2.6vw,1.2rem);color:var(--ink-soft);font-weight:500}
+.lede{font-size:clamp(.9375rem,2.6vw,1.0625rem);color:var(--text-muted)}
 .note{
-  margin:1.5rem 0 0;padding:1rem 1.1rem;border-radius:14px;text-align:left;
-  background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);
-  color:var(--accent-deep);font-weight:600;font-size:1rem;line-height:1.5;
+  margin:1.5rem 0 0;padding:1rem 1.1rem;border-radius:var(--radius-sm);text-align:left;
+  background:var(--bg);border:1px solid var(--border);
+  color:var(--text);font-weight:500;font-size:.9375rem;line-height:1.5;
+  font-variant-numeric:tabular-nums;
 }
 .actions{margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
-  min-height:var(--tap);padding:0 1.5rem;border-radius:14px;
-  font-weight:700;font-size:1.05rem;text-decoration:none;border:none;
+  min-height:var(--tap);padding:0 1.5rem;border-radius:var(--radius-md);
+  font-family:var(--font-heading);font-weight:700;font-size:1rem;text-decoration:none;
+  border:1px solid transparent;
 }
-.btn-primary{
-  color:#fff;
-  background:linear-gradient(180deg,#FB923C 0%,#F97316 45%,#EA580C 100%);
-  box-shadow:0 14px 28px -10px rgba(194,65,12,.55);
-}
-.btn-ghost{
-  color:var(--brand-deep);
-  background:rgba(255,255,255,.7);border:1px solid var(--glass-line);
-}
-.fineprint{margin-top:1.5rem;font-size:.9rem;color:var(--ink-soft)}
-.fineprint a{color:var(--brand-deep);font-weight:600}
+.btn-primary{color:#fff;background:var(--brand)}
+.btn-primary:hover{background:var(--brand-strong)}
+.btn-ghost{color:var(--text);background:var(--surface);border-color:var(--border-strong)}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand)}
+.fineprint{margin-top:1.5rem;font-size:.8125rem;color:var(--text-muted)}
+.fineprint a{color:var(--brand);font-weight:600}
 </style>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -89,7 +83,7 @@ h1{
 
 <main class="card">
   <a class="brand" href="../" aria-label="GoLoans — home">
-    <img src="../images/goloans-logo.png" alt="GoLoans">
+    <img src="../images/goloans-logo.png" alt="GoLoans" width="500" height="145">
   </a>
 
   <div class="check" aria-hidden="true">
