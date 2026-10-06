@@ -34,6 +34,8 @@
   --brand-strong:     #0E5602;   /* hover / pressed                              */
   --brand-bright:     #2BAC0A;   /* the logo's highlight green — dark surfaces only */
   --brand-tint:       #E9F4E6;   /* pale green wash behind brand-coloured states */
+  --hero-green:       #4CC62B;   /* brighter tint of the brand green, for the dark desktop hero:
+                                    the two headline phrases and the "Shop the deals" button */
 
   /* --- colour: deal accent — prices and deal badges ONLY --- */
   --deal:             #D73211;   /* warm orange-red. On white: 4.8:1             */
@@ -500,6 +502,17 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 .hero p.lede{margin:0;max-width:46ch;color:var(--text-muted);font-size:var(--fs-body);line-height:1.45}
 .hero-offers{margin-top:var(--space-3)}
 .hero-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3)}
+/* "Shop the deals" pulses: a soft ring of its own green spreads out and fades,
+   every two seconds, to say "press me". --pulse is that green as r,g,b. */
+.hero-actions .btn{--pulse:19,113,3;animation:cta-pulse 2s ease-out infinite}
+@keyframes cta-pulse{
+  0%{box-shadow:0 0 0 0 rgba(var(--pulse),.55)}
+  70%,100%{box-shadow:0 0 0 14px rgba(var(--pulse),0)}
+}
+/* no pulsing for anyone who has asked their device for less motion */
+@media (prefers-reduced-motion:reduce){
+  .hero-actions .btn,.hero-dot::after{animation:none}
+}
 /* the emphasised words in the headline */
 .scribble{white-space:nowrap;color:var(--brand)}
 
@@ -649,9 +662,12 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
     font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;margin-bottom:var(--space-3);
     color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.35);
   }
-  /* the two phrases keep the brand green; the token is here so it can be
-     swapped for a brighter tint on this dark background in one place */
-  .hero .scribble{color:var(--hero-green,var(--brand))}
+  /* On the dark photo the two phrases use the brighter tint (the normal brand
+     green is close to invisible here), and the button matches them. Its
+     label is dark, because white on this green would be too faint to read. */
+  .hero .scribble{color:var(--hero-green)}
+  .hero-actions .btn-primary{--pulse:76,198,43;background:var(--hero-green);color:var(--text)}
+  .hero-actions .btn-primary:hover:not(:disabled){background:#62D442}
   .hero p.lede{color:rgba(255,255,255,.85);text-shadow:0 1px 10px rgba(0,0,0,.35)}
   /* the two offer badges become solid white pills so they read on the photo */
   .hero-offers .tag{border-color:transparent;background:rgba(255,255,255,.94);color:var(--text)}
