@@ -98,7 +98,11 @@
   /* --- layout constants (unchanged) --- */
   --tap:              52px;      /* minimum interactive height                */
   --maxw:             1200px;
-  --header-h:         60px;      /* height of the sticky header */
+  --header-h:         60px;      /* height of the sticky header (phones: see the override below) */
+}
+/* Phones: the sticky header is the logo row plus the row of tabs. */
+@media (max-width:767px){
+  :root{--header-h:92px}
 }
 /* Larger screens: one step up, same proportions. */
 @media (min-width:900px){
@@ -168,19 +172,48 @@ button{font:inherit;font-family:var(--font-heading)}
 
 /* ============================================================
    HEADER
-   One compact sticky bar: logo on the left; on the right the
-   phone number (an icon on phones, icon + number from 600px)
-   and the list button with its live count.
+   One sticky bar. From 768px: logo left, the three section links
+   in the centre, phone and list buttons right. On phones the
+   links drop to a second row of pill tabs under the logo row,
+   scrolling sideways, and the two rows stick together.
    ============================================================ */
 .site-header{position:sticky;top:0;z-index:60;background:var(--surface);border-bottom:1px solid var(--border)}
-.header-bar{display:flex;align-items:center;gap:var(--space-2);min-height:var(--header-h)}
+/* phones: two rows — [logo ........ phone list] then the tabs */
+.header-bar{display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--space-2);min-height:48px}
 .brand{flex:none;display:flex;align-items:center;min-height:44px;text-decoration:none}
-.brand img{height:32px;width:auto}
-.header-spacer{flex:1}
+.brand img{height:28px;width:auto}
+.header-actions{display:flex;align-items:center;gap:var(--space-2);margin-left:auto}
+.site-header .icon-btn{width:40px;height:40px}
 .header-call svg{color:var(--brand)}
 .header-call-num{display:none}
+
+/* ---- section links: pill tabs on phones ---- */
+.site-nav{
+  order:3;flex:0 0 auto;display:flex;gap:var(--space-2);overflow-x:auto;
+  width:calc(100% + 2.5rem);margin:0 -1.25rem;padding:2px 1.25rem 8px;   /* runs edge to edge */
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.site-nav::-webkit-scrollbar{display:none}
+.nav-link{
+  position:relative;flex:none;display:inline-flex;align-items:center;gap:6px;
+  height:32px;padding:0 14px;border:1px solid var(--border-strong);border-radius:var(--radius-pill);
+  background:var(--surface);color:var(--text-secondary);
+  font-family:var(--font-heading);font-size:.8125rem;font-weight:500;text-decoration:none;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.nav-link::before{content:"";position:absolute;inset:-6px 0}   /* 44px tall to tap */
+.nav-link:hover{border-color:var(--brand);color:var(--brand)}
+.nav-link[aria-current="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+/* "Soon": New Arrivals has nothing in it yet */
+.nav-soon{
+  padding:1px 6px;border-radius:var(--radius-pill);
+  background:var(--brand-tint);color:var(--brand);
+  font-size:.625rem;font-weight:700;letter-spacing:.04em;line-height:1.5;text-transform:uppercase;
+}
+.nav-link[aria-current="true"] .nav-soon{background:#fff}
+
 @media (min-width:600px){
-  /* two classes, so this outranks the fixed 44px circle of .icon-btn */
+  /* two classes, so this outranks the fixed circle of .icon-btn */
   .site-header .header-call{
     display:inline-flex;align-items:center;white-space:nowrap;
     width:auto;padding:0 var(--space-4);gap:var(--space-2);border-radius:var(--radius-pill);
@@ -188,6 +221,51 @@ button{font:inherit;font-family:var(--font-heading)}
   }
   .header-call-num{display:inline}
 }
+
+/* ---- tablets and desktop: one row, links in the centre ---- */
+@media (min-width:768px){
+  /* equal outer columns keep the links truly centred whenever there is
+     room; on a narrow tablet the wider right side simply takes what it
+     needs and the links shift a little left */
+  .header-bar{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-3);min-height:var(--header-h)}
+  .brand{justify-self:start}
+  .brand img{height:32px}
+  .header-actions{justify-self:end;margin-left:0}
+  /* height for both buttons; width only for the round one — the phone
+     button is a pill here and must keep its own width */
+  .site-header .icon-btn{height:44px}
+  .site-header .header-list{width:44px}
+  .site-nav{order:0;width:auto;margin:0;padding:0;overflow:visible;gap:0}
+  .nav-link{
+    height:44px;padding:0 var(--space-3);border:0;border-radius:0;background:none;
+    font-size:var(--fs-title);
+  }
+  .nav-link::before{content:none}
+  /* the small underline: grows from the centre on hover and stays for the
+     section being viewed */
+  .nav-link::after{
+    content:"";position:absolute;left:var(--space-3);right:var(--space-3);bottom:8px;height:2px;border-radius:1px;
+    background:var(--brand);transform:scaleX(0);transition:transform .18s ease;
+  }
+  .nav-link:hover,.nav-link[aria-current="true"]{background:none;color:var(--brand)}
+  .nav-link:hover::after,.nav-link[aria-current="true"]::after{transform:scaleX(1)}
+  .nav-link[aria-current="true"] .nav-soon{background:var(--brand-tint)}
+}
+/* a tap on a section link glides there, unless the visitor prefers no motion */
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+}
+
+/* ---- New Arrivals: a small holding note until there is something to show ---- */
+.new-arrivals{padding-top:var(--space-8)}
+.soon-box{
+  display:flex;flex-direction:column;align-items:center;gap:var(--space-2);
+  padding:var(--space-6) var(--space-4);text-align:center;
+  border:1px dashed var(--border-strong);border-radius:var(--radius-md);background:var(--surface);
+}
+.soon-box h2{margin:0}
+.soon-box p{margin:0;color:var(--text-muted)}
+.soon-box .btn{margin-top:var(--space-2)}
 
 /* ============================================================
    BUTTONS  —  the only button styles on the page
@@ -388,8 +466,9 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
    tighter, which is what gets the first deal cards onto the first screen. */
 @media (max-width:767px) and (max-height:700px){
   .hero-card{gap:6px}
-  .hero{padding-top:6px}
-  .hero-photo{aspect-ratio:1.9}
+  .site-nav{padding-bottom:6px}
+  .hero{padding-top:4px}
+  .hero-photo{aspect-ratio:2}
   .hero-photo img{object-position:center 80%}   /* trims a sliver of wall above her, keeps the phone */
   .hero-picks{margin-top:-44px}
   .hero h1{font-size:1.625rem;margin-bottom:4px}
@@ -397,6 +476,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .hero-offers,.hero-actions{margin-top:6px}
   .hero-actions .btn{min-height:44px}
   .deals{padding-top:var(--space-2)}
+  .deals-head{margin-bottom:var(--space-1)}
 }
 
 /* ---- tablets (768px to 1023px) ------------------------------------------
@@ -1114,18 +1194,26 @@ body.drawer-open{overflow:hidden}
     <a class="brand" href="#top" aria-label="GoLoans — home">
       <img src="images/goloans-logo.png" alt="GoLoans" width="500" height="145">
     </a>
-    <span class="header-spacer"></span>
-    <a class="icon-btn header-call" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
-      <span class="header-call-num" aria-hidden="true">+1 (866) 478-4199</span>
-    </a>
-    <button class="icon-btn header-list" id="headerList" type="button" aria-label="Open my list" aria-haspopup="dialog" aria-controls="cartDrawer">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M2.75 3.25h1.9a1 1 0 0 1 .98.8l.42 2.05m0 0 1.55 7.46a2 2 0 0 0 1.96 1.59h7.53a2 2 0 0 0 1.95-1.53l1.36-5.6a1 1 0 0 0-.97-1.24z"/>
-        <circle cx="10" cy="20" r="1.55"/><circle cx="17.5" cy="20" r="1.55"/>
-      </svg>
-      <span class="count-badge" id="headerListCount" aria-hidden="true" hidden>0</span>
-    </button>
+    <!-- centre of the bar from 768px; a row of pill tabs under it on phones -->
+    <nav class="site-nav" id="siteNav" aria-label="Shop sections">
+      <a class="nav-link" href="#new-arrivals" data-nav="new-arrivals">New Arrivals <span class="nav-soon">Soon</span></a>
+      <a class="nav-link" href="#deals" data-nav="deals">Flash Deals</a>
+      <!-- for now Bundles goes to the Flash Deals strip as well -->
+      <a class="nav-link" href="#deals" data-nav="deals">Bundles</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-btn header-call" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+        <span class="header-call-num" aria-hidden="true">+1 (866) 478-4199</span>
+      </a>
+      <button class="icon-btn header-list" id="headerList" type="button" aria-label="Open my list" aria-haspopup="dialog" aria-controls="cartDrawer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2.75 3.25h1.9a1 1 0 0 1 .98.8l.42 2.05m0 0 1.55 7.46a2 2 0 0 0 1.96 1.59h7.53a2 2 0 0 0 1.95-1.53l1.36-5.6a1 1 0 0 0-.97-1.24z"/>
+          <circle cx="10" cy="20" r="1.55"/><circle cx="17.5" cy="20" r="1.55"/>
+        </svg>
+        <span class="count-badge" id="headerListCount" aria-hidden="true" hidden>0</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -1187,6 +1275,17 @@ body.drawer-open{overflow:hidden}
     <div class="chips" id="chips" role="group" aria-label="Filter items by category"></div>
     <div class="grid" id="shopGrid"></div>
     <p class="section-fineprint" id="shopFineprint"></p>
+  </div>
+</section>
+
+<!-- ============================ NEW ARRIVALS (nothing to show yet) ============================ -->
+<section class="section new-arrivals" id="new-arrivals" aria-labelledby="newArrivalsTitle">
+  <div class="wrap">
+    <div class="soon-box">
+      <h2 id="newArrivalsTitle">New Arrivals</h2>
+      <p>New items are coming soon. Check back shortly.</p>
+      <a class="btn btn-secondary" href="#shop">Browse current deals</a>
+    </div>
   </div>
 </section>
 </main>
@@ -2751,6 +2850,44 @@ function syncToTop(){ toTop.classList.toggle("show", window.scrollY > 600); }
 window.addEventListener("scroll", syncToTop, { passive:true });
 syncToTop();
 toTop.addEventListener("click", () => window.scrollTo({ top:0, behavior: reduceMotion ? "auto" : "smooth" }));
+
+/* ---------- header nav: which link is "on" ----------
+   A link is on while its section is the one being looked at. Two links
+   (Flash Deals and Bundles) lead to the same section for now, so the one
+   that was actually clicked wins; arriving there by scrolling lights
+   Flash Deals. */
+const navLinks = [...document.querySelectorAll(".nav-link")];
+let navPicked = null, navHoldUntil = 0;
+function setActiveNav(section){
+  const pool = navLinks.filter(a => a.dataset.nav === section);
+  const on = pool.includes(navPicked) ? navPicked : (pool[0] || null);
+  navLinks.forEach(a => { if(a === on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+}
+function spyNav(){
+  if(Date.now() < navHoldUntil) return;      // mid-glide to a clicked link: leave it lit
+  const top = el(".site-header").offsetHeight, line = top + window.innerHeight * .3;
+  let current = null;
+  for(const id of ["deals", "new-arrivals"]){
+    const r = el("#" + id).getBoundingClientRect();
+    /* started above the 30% line, and still has a good strip showing */
+    if(r.top <= line && r.bottom > top + 80) current = id;
+  }
+  setActiveNav(current);
+}
+navLinks.forEach(a => a.addEventListener("click", () => {
+  navPicked = a;
+  navHoldUntil = Date.now() + 1200;
+  setActiveNav(a.dataset.nav);
+  /* on a phone, bring the tapped tab fully into the row */
+  const row = el("#siteNav");
+  row.scrollTo({ left: a.offsetLeft - (row.clientWidth - a.offsetWidth) / 2, behavior: reduceMotion ? "auto" : "smooth" });
+}));
+let navTick = false;
+window.addEventListener("scroll", () => {
+  if(navTick) return;
+  navTick = true;
+  requestAnimationFrame(() => { navTick = false; spyNav(); });
+}, { passive:true });
 
 /* ---------- go ---------- */
 renderHeroPicks();
