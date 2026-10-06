@@ -1341,6 +1341,15 @@ body.drawer-open{overflow:hidden}
 </style>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  /* Click tracking: any element with data-event-name (or .track-click) sends a
+     Vercel Analytics custom event. Delegated in the capture phase, so it also
+     covers buttons rendered later by JS. */
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-event-name],.track-click");
+    if (!t) return;
+    var name = t.getAttribute("data-event-name") || t.id || (t.textContent || "").trim().slice(0, 40) || "Click";
+    window.va("event", { name: name });
+  }, true);
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -1354,9 +1363,9 @@ body.drawer-open{overflow:hidden}
     </a>
     <!-- centre of the bar from 768px; a row of pill tabs under it on phones -->
     <nav class="site-nav" id="siteNav" aria-label="Shop sections">
-      <a class="nav-link" href="#new-arrivals" data-nav="new-arrivals">New Arrivals <span class="nav-soon">Soon</span></a>
-      <a class="nav-link" href="#flash-deals" data-nav="deals" data-deals-tab="flash-deals">Flash Deals</a>
-      <a class="nav-link" href="#bundles" data-nav="deals" data-deals-tab="bundles">Bundles</a>
+      <a class="nav-link" href="#new-arrivals" data-event-name="Nav_New_Arrivals_Click" data-nav="new-arrivals">New Arrivals <span class="nav-soon">Soon</span></a>
+      <a class="nav-link" href="#flash-deals" data-event-name="Nav_Flash_Deals_Click" data-nav="deals" data-deals-tab="flash-deals">Flash Deals</a>
+      <a class="nav-link" href="#bundles" data-event-name="Nav_Bundles_Click" data-nav="deals" data-deals-tab="bundles">Bundles</a>
     </nav>
     <div class="header-actions">
       <!-- the magnifier only exists below 1024px, where it opens the search bar -->
@@ -1376,11 +1385,11 @@ body.drawer-open{overflow:hidden}
         </div>
         <div class="search-results" id="searchResults" aria-label="Matching items" hidden></div>
       </div>
-      <a class="icon-btn header-call" href="tel:+18664784199" aria-label="Call +1 (866) 478-4199">
+      <a class="icon-btn header-call" href="tel:+18664784199" data-event-name="Header_Call_Click" aria-label="Call +1 (866) 478-4199">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
         <span class="header-call-num" aria-hidden="true">+1 (866) 478-4199</span>
       </a>
-      <button class="icon-btn header-list" id="headerList" type="button" aria-label="Open my list" aria-haspopup="dialog" aria-controls="cartDrawer">
+      <button class="icon-btn header-list" id="headerList" data-event-name="Header_List_Open_Click" type="button" aria-label="Open my list" aria-haspopup="dialog" aria-controls="cartDrawer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M2.75 3.25h1.9a1 1 0 0 1 .98.8l.42 2.05m0 0 1.55 7.46a2 2 0 0 0 1.96 1.59h7.53a2 2 0 0 0 1.95-1.53l1.36-5.6a1 1 0 0 0-.97-1.24z"/>
           <circle cx="10" cy="20" r="1.55"/><circle cx="17.5" cy="20" r="1.55"/>
@@ -1405,7 +1414,7 @@ body.drawer-open{overflow:hidden}
           <span class="tag">VIP Special Access</span>
         </div>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#deals">Shop the deals</a>
+          <a class="btn btn-primary" href="#deals" data-event-name="Hero_Shop_Deals_Click">Shop the deals</a>
         </div>
       </div>
 
@@ -1468,7 +1477,7 @@ body.drawer-open{overflow:hidden}
     <div class="soon-box">
       <h2 id="newArrivalsTitle">New Arrivals</h2>
       <p>New items are coming soon. Check back shortly.</p>
-      <a class="btn btn-secondary" href="#shop">Browse current deals</a>
+      <a class="btn btn-secondary" href="#shop" data-event-name="New_Arrivals_Browse_Click">Browse current deals</a>
     </div>
   </div>
 </section>
@@ -1480,9 +1489,9 @@ body.drawer-open{overflow:hidden}
     <div class="glass footer-inner">
       <p><strong>GoLoans.ca</strong> — Summer VIP Catalog</p>
       <div class="footer-links">
-        <a href="https://goloans.ca/" target="_blank" rel="noopener">Main site</a>
-        <a href="https://goloans.ca/faqs/" target="_blank" rel="noopener">FAQs</a>
-        <a href="mailto:sales@goloans.ca">sales@goloans.ca</a>
+        <a href="https://goloans.ca/" target="_blank" rel="noopener" data-event-name="Footer_Main_Site_Click">Main site</a>
+        <a href="https://goloans.ca/faqs/" target="_blank" rel="noopener" data-event-name="Footer_FAQs_Click">FAQs</a>
+        <a href="mailto:sales@goloans.ca" data-event-name="Footer_Email_Click">sales@goloans.ca</a>
       </div>
       <p style="margin:0">Prices shown are member pricing and may change. Selecting items sends a request only — nothing is charged on this page. All rights reserved © 2026 GoLoans.ca</p>
     </div>
@@ -1512,8 +1521,8 @@ body.drawer-open{overflow:hidden}
         </svg>
         <span class="count-badge" id="pdListCount" aria-hidden="true" hidden>0</span>
       </button>
-      <button class="btn btn-secondary pd-add" id="pdAdd" type="button">Add to my list</button>
-      <button class="btn btn-primary pd-request" id="pdRequest" type="button">Request this item</button>
+      <button class="btn btn-secondary pd-add" id="pdAdd" data-event-name="Product_Add_To_List_Click" type="button">Add to my list</button>
+      <button class="btn btn-primary pd-request" id="pdRequest" data-event-name="Product_Request_Item_Click" type="button">Request this item</button>
     </div>
   </div>
 </div>
@@ -1540,7 +1549,7 @@ body.drawer-open{overflow:hidden}
       </span>
       <p class="empty-title">Your list is empty</p>
       <p class="empty-text">Tap the + on anything you like and it will show up here.</p>
-      <a class="btn btn-primary" id="browseDeals" href="#deals">Browse deals</a>
+      <a class="btn btn-primary" id="browseDeals" href="#deals" data-event-name="Empty_List_Browse_Deals_Click">Browse deals</a>
     </div>
   </div>
   <div class="drawer-foot" id="cartFoot">
@@ -1548,7 +1557,7 @@ body.drawer-open{overflow:hidden}
       <span class="label" id="totalLabel">Estimated total</span>
       <span class="value" id="cartTotal">$0.00</span>
     </div>
-    <button class="btn btn-primary btn-block" id="toForm" disabled>Submit my Order</button>
+    <button class="btn btn-primary btn-block" id="toForm" data-event-name="Submit_Order_Click" disabled>Submit my Order</button>
     <p class="fineprint">You will not be charged. We email your list to our team and an agent replies to confirm availability and next steps.</p>
   </div>
 
@@ -1610,7 +1619,7 @@ body.drawer-open{overflow:hidden}
         <p class="form-summary-list" id="formList"></p>
       </div>
 
-      <button class="btn btn-primary btn-block" type="submit">Send my request to GoLoans</button>
+      <button class="btn btn-primary btn-block" type="submit" data-event-name="Send_Request_Click">Send my request to GoLoans</button>
       <button class="btn btn-secondary btn-block" type="button" id="backToCart">← Back to my list</button>
       <p class="fineprint">You will not be charged. By sending, you agree a GoLoans agent may contact you about these offers.</p>
     </form>
@@ -1620,7 +1629,7 @@ body.drawer-open{overflow:hidden}
 <!-- ============================ LIST BAR + TOAST ============================ -->
 <div class="list-bar" id="listBar">
   <div class="wrap list-bar-inner">
-    <button class="list-bar-summary" id="cartBtn" type="button" data-empty="true"
+    <button class="list-bar-summary" id="cartBtn" data-event-name="List_Bar_Open_Click" type="button" data-empty="true"
             aria-haspopup="dialog" aria-controls="cartDrawer">
       <span class="list-bar-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
@@ -1638,7 +1647,7 @@ body.drawer-open{overflow:hidden}
       <span class="sr-only">Open your list.</span>
     </button>
     <!-- secondary while the list is empty, primary once it has something in it -->
-    <button class="btn btn-secondary" id="listBarOpen" type="button">View my list</button>
+    <button class="btn btn-secondary" id="listBarOpen" data-event-name="List_Bar_View_List_Click" type="button">View my list</button>
   </div>
 </div>
 
@@ -2319,7 +2328,7 @@ function cardHTML(it, lead, eager){
       <div class="tags">${tagsFor(it, lead).map(t => `<span class="tag ${t.cls}">${t.text}</span>`).join("")}</div>
       ${priceHTML(it)}
     </div>
-    <button class="quick-add" type="button" data-add="${it.id}" aria-label="${attr(quickAddLabel(it, qty))}">
+    <button class="quick-add" type="button" data-add="${it.id}" data-event-name="Quick_Add_Click" aria-label="${attr(quickAddLabel(it, qty))}">
       ${ICONS.plus}<span class="quick-add-qty" aria-hidden="true"${qty ? "" : " hidden"}>${qty}</span>
     </button>
   </article>`;
@@ -2636,7 +2645,7 @@ function renderHeroPicks(){
          of the tab order and away from screen readers */
       return `
       <a class="hero-dot" href="#item/${it.id}" data-open="${it.id}" tabindex="-1" aria-hidden="true" style="left:${p.dot[0]}%;top:${p.dot[1]}%"></a>
-      <a class="hero-pick hero-pick--${p.key}" href="#item/${it.id}" data-open="${it.id}">
+      <a class="hero-pick hero-pick--${p.key}" href="#item/${it.id}" data-open="${it.id}" data-event-name="Hero_Pick_Click">
         ${photo ? `<img class="hero-pick-img" src="${attr(photo)}" alt="" width="64" height="64">` : ""}
         <span class="hero-pick-body">
           <span class="hero-pick-name"><span class="hp-full">${attr(it.name)}</span><span class="hp-short" aria-hidden="true">${attr(p.short || it.name)}</span></span>

@@ -76,6 +76,15 @@ h1{
 </style>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  /* Click tracking: any element with data-event-name (or .track-click) sends a
+     Vercel Analytics custom event. Delegated in the capture phase, so it also
+     covers buttons rendered later by JS. */
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-event-name],.track-click");
+    if (!t) return;
+    var name = t.getAttribute("data-event-name") || t.id || (t.textContent || "").trim().slice(0, 40) || "Click";
+    window.va("event", { name: name });
+  }, true);
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -93,14 +102,14 @@ h1{
   <h1>Thank you for your order!</h1>
   <p class="lede">Please check your inbox within the next 30 minutes to sign your approval sheet. Once signed, our team will promptly process and ship your order.</p>
 
-  <div class="note">Don't see it after 30 minutes? Check your spam/junk folder, or call us at <a href="tel:+18664784199" style="color:inherit">+1 (866) 478-4199</a> and we'll resend it.</div>
+  <div class="note">Don't see it after 30 minutes? Check your spam/junk folder, or call us at <a href="tel:+18664784199" data-event-name="Thank_You_Call_Click" style="color:inherit">+1 (866) 478-4199</a> and we'll resend it.</div>
 
   <div class="actions">
-    <a class="btn btn-primary" href="../">Back to the catalog</a>
-    <a class="btn btn-ghost" href="https://goloans.ca/" target="_blank" rel="noopener">Visit GoLoans.ca</a>
+    <a class="btn btn-primary" href="../" data-event-name="Thank_You_Back_To_Catalog_Click">Back to the catalog</a>
+    <a class="btn btn-ghost" href="https://goloans.ca/" data-event-name="Thank_You_Visit_GoLoans_Click" target="_blank" rel="noopener">Visit GoLoans.ca</a>
   </div>
 
-  <p class="fineprint">Questions in the meantime? Email <a href="mailto:sales@goloans.ca">sales@goloans.ca</a>.</p>
+  <p class="fineprint">Questions in the meantime? Email <a href="mailto:sales@goloans.ca" data-event-name="Thank_You_Email_Click">sales@goloans.ca</a>.</p>
 </main>
 
 </body>
