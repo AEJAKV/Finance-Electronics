@@ -311,7 +311,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
    more room. The full name is always there for screen readers. */
 .hero-pick-img{display:none;flex:none;width:44px;height:44px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-sunken)}
 .hp-full{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.hero-pick-body{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.hero-pick-body{flex:1;display:flex;flex-direction:column;min-width:0;line-height:1.3}
 .hero-pick-name{
   font-family:var(--font-heading);font-size:var(--fs-label);font-weight:700;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
@@ -319,7 +319,8 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 .hero-pick-line{display:none;font-size:var(--fs-tag);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-pick-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;font-size:var(--fs-tag);color:var(--text-muted)}
 .hero-pick-amt{white-space:nowrap}
-.hero-pick-from--phone,.hero-pick-arrow{display:none}   /* phone layout only, see below */
+/* the "tap me" arrow at the right-hand end of every card */
+.hero-pick-arrow{flex:none;color:var(--text-subtle);font-size:1.25rem;line-height:1}
 .hero-pick-price .price{font-size:var(--fs-title)}
 .hero-pick-price .price-per{font-size:var(--fs-tag)}
 
@@ -364,12 +365,9 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
     box-shadow:0 6px 18px rgba(0,0,0,.16);
   }
   .hero-pick-img{display:block;width:32px;height:32px}
-  .hero-pick-body{flex:1}
   .hero-pick-line{display:none}
   .hp-full{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .hp-short{display:inline}
-  .hero-pick-from--phone{display:inline}
-  .hero-pick-arrow{display:block;flex:none;color:var(--text-subtle);font-size:1.25rem;line-height:1}
 
   .hero h1{font-size:1.75rem;line-height:1.1;text-wrap:balance;margin-bottom:var(--space-2)}
   .hero-br-wide{display:none}          /* let the browser balance the lines itself */
@@ -399,6 +397,40 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .hero-offers,.hero-actions{margin-top:6px}
   .hero-actions .btn{min-height:44px}
   .deals{padding-top:var(--space-2)}
+}
+
+/* ---- tablets (768px to 1023px) ------------------------------------------
+   Two columns. Left: headline, description, offers and button, centred
+   against the right-hand side. Right: the photo as a rounded card, cropped
+   to her face, the headphones and the phone, with the two product cards
+   stacked across its bottom edge — the upper one on the photo, the lower
+   one below it. About 445px tall in all, so Flash Deals starts well inside
+   the first screen of an iPad. -------------------------------------------- */
+@media (min-width:768px) and (max-width:1023px){
+  .hero{padding-top:var(--space-3)}
+  .hero-card{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto;
+    column-gap:var(--space-6);row-gap:0;align-items:center;
+  }
+  .hero-copy{grid-column:1;grid-row:1 / span 2}
+  .hero-photo{grid-column:2;grid-row:1;aspect-ratio:auto;height:380px}
+  /* at 768 the column shows about half the photo's width: this window runs
+     from just left of the phone to just right of the ear cup */
+  .hero-photo img{object-position:55% center}
+  /* one card is 66px tall and the pair has an 8px gap, so pulling the stack
+     up by 70px puts the photo's edge in the gap between the two */
+  .hero-picks{
+    grid-column:2;grid-row:2;position:relative;z-index:1;
+    grid-template-columns:minmax(0,1fr);gap:var(--space-2);
+    margin:-70px var(--space-3) 0;
+  }
+  .hero-pick{min-height:66px;border-color:transparent;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+
+  .hero h1{font-size:clamp(2.125rem,1.1rem + 2.15vw,2.375rem);line-height:1.1;text-wrap:balance;margin-bottom:var(--space-3)}
+  .hero-br-wide,.hero-br{display:none}   /* the browser balances the lines to fit the column */
+  .hero-offers,.hero-actions{margin-top:var(--space-4)}
+
+  .deals{padding-top:var(--space-4)}
 }
 
 @media (min-width:1024px){
@@ -1367,7 +1399,7 @@ const FEATURED_DEAL_IDS = ["iphone-14", "iphone-15", "galaxy-z-flip5", "ipad-10t
    ============================================================ */
 const HERO_PICKS = [
   { key:"a", id:"bose-qc-headphones", short:"Bose QuietComfort", line:"Active noise cancelling",    dot:[71.5, 30], to:[88, 9]  },
-  { key:"b", id:"galaxy-z-flip5",     short:"Galaxy Z Flip5",    line:"256GB · like-new condition", dot:[33, 62],   to:[60, 88] }
+  { key:"b", id:"galaxy-z-flip5",     short:"Galaxy Z Flip5",    line:"256GB · like-new",           dot:[33, 62],   to:[60, 88] }
 ];
 
 /* ============================================================
@@ -2307,8 +2339,7 @@ function renderHeroPicks(){
       const it = byId.get(p.id);
       const photo = it.image || (thumbParts(it)[0] || {}).image || "";
       const unit = it.per ? `<span class="price-per">/${UNIT_SHORT[it.per] || it.per}</span>` : "";
-      /* On phones both cards read "As low as $X/wk" so the pair matches; the
-         prefix is only shown elsewhere for items the catalog marks `from`. */
+      /* Both cards read "As low as $X/wk" at every size, so the pair matches. */
       /* the dot repeats the card's link for pointer users, so it is kept out
          of the tab order and away from screen readers */
       return `
@@ -2318,7 +2349,7 @@ function renderHeroPicks(){
         <span class="hero-pick-body">
           <span class="hero-pick-name"><span class="hp-full">${attr(it.name)}</span><span class="hp-short" aria-hidden="true">${attr(p.short || it.name)}</span></span>
           <span class="hero-pick-line">${attr(p.line)}</span>
-          <span class="hero-pick-price"><span class="hero-pick-from${it.from ? "" : " hero-pick-from--phone"}">As low as</span><span class="hero-pick-amt"><span class="price">${money(it.price)}</span>${unit}</span></span>
+          <span class="hero-pick-price"><span class="hero-pick-from">As low as</span><span class="hero-pick-amt"><span class="price">${money(it.price)}</span>${unit}</span></span>
         </span>
         <span class="hero-pick-arrow" aria-hidden="true">›</span>
       </a>`;
