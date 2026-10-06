@@ -115,8 +115,8 @@
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
 /* The closed cart drawer is parked off-screen at translateX(102%) and the
-   hero glow/deck sit outside the content column — all three would otherwise
-   let the page scroll sideways. `clip` trims them without the sticky-header
+   product view slides up from below the screen — either would otherwise
+   let the page scroll. `clip` trims them without the sticky-header
    breakage that `hidden` causes. Set on <html> so it isn't propagated away. */
 html{-webkit-text-size-adjust:100%;overflow-x:clip}
 body{
@@ -127,8 +127,8 @@ body{
   color:var(--text);
   background:var(--bg);
   -webkit-font-smoothing:antialiased;
-  /* The fanned deck deliberately sits outside the content column.
-     `clip` (not `hidden`) trims it without breaking the sticky header. */
+  /* `clip` (not `hidden`) trims off-screen panels without breaking the
+     sticky header. */
   overflow-x:clip;
 }
 img{max-width:100%;display:block}
@@ -276,55 +276,144 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 
 /* ============================================================
    HERO
-   Short on purpose: the headline, one line of explanation, the
-   two offers and a single button, so the deals start on the first
-   screen of a phone. The catalog covers only join in from 900px,
-   where there is a second column for them.
+   Phones and tablets: the photo as a rounded card, the two
+   pictured products as a row of small cards under it, then the
+   headline, description, offers and button on the page itself.
+   From 1024px: one big rounded card. The photo sits against its
+   right edge at full height; the left is the photo's own beige,
+   continued, with a soft light wash so dark text reads on it.
+   The headline block sits in that left area, and the two product
+   cards float over the photo, each tied to a pulsing dot on the
+   thing it sells.
    ============================================================ */
-.hero{position:relative;padding:var(--space-5) 0 var(--space-6);overflow:visible}
-.hero-grid{display:grid;gap:var(--space-8);align-items:center;grid-template-columns:1fr}
-.hero-copy{text-align:left}
-.hero h1{font-size:clamp(1.625rem,4.6vw,3rem);margin-bottom:var(--space-2)}
+.hero{padding:var(--space-3) 0 0}
+.hero-card{display:flex;flex-direction:column;gap:var(--space-3)}
+
+/* ---- photo ---- */
+.hero-photo{order:1;position:relative;overflow:hidden;border-radius:20px;aspect-ratio:5/3;background:#bea693}
+/* cropped toward the right on a phone, which keeps her face, the headphones
+   and the phone in the frame and drops only empty wall */
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:97% 30%}
+
+/* ---- the two pictured products ---- */
+.hero-picks{order:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}
+.hero-lines,.hero-dot{display:none}
+.hero-pick{
+  display:flex;align-items:center;gap:var(--space-2);min-width:0;padding:var(--space-2) var(--space-3);
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--surface);color:var(--text);text-decoration:none;
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+.hero-pick:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+/* On a phone the cards are two short text labels directly under the photo
+   that shows both products, so the thumbnail and the extra line wait for
+   more room. The full name is always there for screen readers. */
+.hero-pick-img{display:none;flex:none;width:44px;height:44px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-sunken)}
+.hp-full{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero-pick-body{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.hero-pick-name{
+  font-family:var(--font-heading);font-size:var(--fs-label);font-weight:700;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.hero-pick-line{display:none;font-size:var(--fs-tag);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-pick-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;font-size:var(--fs-tag);color:var(--text-muted)}
+.hero-pick-amt{white-space:nowrap}
+.hero-pick-price .price{font-size:var(--fs-title)}
+.hero-pick-price .price-per{font-size:var(--fs-tag)}
+
+/* ---- headline block ---- */
+.hero-copy{order:3;text-align:left}
+.hero h1{font-size:clamp(1.5rem,6.4vw,2.25rem);line-height:1.1;margin:0 0 var(--space-2)}
+.hero-br{display:none}
 .hero p.lede{margin:0;max-width:46ch;color:var(--text-muted);font-size:var(--fs-body);line-height:1.45}
 .hero-offers{margin-top:var(--space-3)}
-.hero-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-4)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3)}
 /* the emphasised words in the headline */
 .scribble{white-space:nowrap;color:var(--brand)}
-@media (min-width:900px){
-  .hero{padding:var(--space-8) 0 var(--space-10)}
-  .hero-grid{grid-template-columns:58fr 42fr}
-  .hero-copy{padding-right:1rem}
+
+/* tablets: room for the whole photo, uncropped */
+@media (min-width:600px){
+  .hero-photo{aspect-ratio:1672/941}
+  .hero-photo img{object-position:center}
+  .hero-pick{padding:var(--space-2)}
+  .hero-pick-img,.hero-pick-line{display:block}
+  .hp-full{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}
+  .hp-short{display:none}
 }
 
-/* ---- summer photo backdrop --------------------------------
-   The photo fades out across the copy instead of carrying an
-   overlay, so the type sits on the page's own background. Two
-   mask layers intersected: a horizontal fade that thins the
-   artwork on the left, and a fixed 70px bottom fade that
-   dissolves it into the page at any hero height.             */
-.hero-bg{
-  position:absolute;z-index:-3;pointer-events:none;
-  inset:0;
-  background:url("images/bg.webp") center 38%/cover no-repeat;
-  -webkit-mask-image:
-    linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.13) 24%,rgba(0,0,0,.30) 42%,rgba(0,0,0,.72) 56%,#000 66%),
-    linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
-          mask-image:
-    linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.13) 24%,rgba(0,0,0,.30) 42%,rgba(0,0,0,.72) 56%,#000 66%),
-    linear-gradient(180deg,#000 0,#000 calc(100% - 70px),transparent 100%);
-  -webkit-mask-composite:source-in;   /* legacy WebKit keyword for intersect */
-          mask-composite:intersect;
-}
-/* Portrait crop of the same scene for the single-column layout. The copy
-   spans the full width there, so the whole photo is kept faint behind it. */
-@media (max-width:899px){
-  .hero-bg{
-    background:url("images/bg-for-mobile.webp") center 35%/cover no-repeat;
-    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.16) 0%,rgba(0,0,0,.22) calc(100% - 70px),transparent 100%);
-            mask-image:linear-gradient(180deg,rgba(0,0,0,.16) 0%,rgba(0,0,0,.22) calc(100% - 70px),transparent 100%);
-    -webkit-mask-composite:source-over;
-            mask-composite:add;
+@media (min-width:1024px){
+  .hero{padding-top:var(--space-5)}
+  .hero-card{
+    position:relative;display:block;overflow:hidden;
+    aspect-ratio:1200/560;max-height:620px;border-radius:24px;
+    /* the photo's own left-edge colours, top to bottom, so the wall carries
+       on seamlessly to the left of where the photo ends */
+    background:linear-gradient(180deg,#9d8778 0%,#bba28e 25%,#bea693 50%,#ac9684 75%,#a08b7b 100%);
   }
+  /* photo and overlay share one box: full height, hard against the right */
+  .hero-photo,.hero-picks{position:absolute;top:0;right:0;height:100%;aspect-ratio:1672/941}
+  .hero-photo{
+    overflow:visible;border-radius:0;background:none;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 15%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 15%);
+  }
+  .hero-photo img{object-position:center}
+  /* Light wash behind the text: a full-height band down the left, and a
+     wider one across the top-left where the headline runs above the phone.
+     The wall is a mid tan, and without the wash neither the green words nor
+     the grey description would have enough contrast. */
+  .hero-card::before,.hero-card::after{content:"";position:absolute;left:0;top:0;z-index:1;pointer-events:none}
+  .hero-card::before{
+    width:46%;height:100%;
+    background:linear-gradient(90deg,rgba(255,250,245,.88) 0%,rgba(255,250,245,.88) 72%,rgba(255,250,245,0) 100%);
+  }
+  .hero-card::after{
+    width:62%;height:54%;
+    background:linear-gradient(90deg,rgba(255,250,245,.88) 0%,rgba(255,250,245,.88) 72%,rgba(255,250,245,0) 100%);
+    -webkit-mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
+            mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
+  }
+
+  .hero-copy{
+    position:absolute;z-index:2;left:0;top:0;bottom:0;width:46%;
+    display:flex;flex-direction:column;justify-content:center;
+    padding-left:clamp(1.75rem,4vw,3rem);
+  }
+  .hero h1{font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;margin-bottom:var(--space-3)}
+  .hero-br{display:inline}
+  /* narrower than the headline: from here down the phone is alongside */
+  .hero p.lede,.hero-offers,.hero-actions{max-width:min(30ch,68%)}
+  .hero-offers{margin-top:var(--space-4)}
+  .hero-actions{margin-top:var(--space-4)}
+
+  /* ---- floating cards, lines and dots, all placed in % of the photo ---- */
+  .hero-picks{display:block;z-index:2;container-type:inline-size}
+  .hero-lines{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .hero-lines line{stroke:#fff;stroke-width:1.5;stroke-opacity:.9;vector-effect:non-scaling-stroke}
+  .hero-pick{
+    position:absolute;width:clamp(196px,23cqw,236px);padding:var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+    border-color:transparent;border-radius:var(--radius-lg);box-shadow:0 10px 30px rgba(60,40,25,.22);
+  }
+  .hero-pick:hover{box-shadow:0 14px 34px rgba(60,40,25,.3)}
+  .hero-pick--a{right:1.8%;top:2%}       /* headphones: upper right, clear of the ear cup */
+  .hero-pick--b{left:49%;bottom:6%}      /* phone: lower middle */
+  .hero-pick-img{width:40px;height:40px}
+  /* the floating cards are small until the hero is at its full width */
+  .hp-full{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .hp-short{display:inline}
+  /* the hotspot: a white dot with a ring that pulses outward */
+  .hero-dot{
+    display:block;position:absolute;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;
+  }
+  .hero-dot::before,.hero-dot::after{content:"";position:absolute;left:50%;top:50%;border-radius:50%}
+  .hero-dot::before{width:14px;height:14px;margin:-7px 0 0 -7px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35),0 2px 8px rgba(0,0,0,.35)}
+  .hero-dot::after{width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid #fff;animation:hero-pulse 2s ease-out infinite}
+  @keyframes hero-pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(3.2);opacity:0}}
+}
+@media (min-width:1280px){
+  .hero-pick-img{width:52px;height:52px}
+  .hp-full{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}
+  .hp-short{display:none}
 }
 
 /* ============================================================
@@ -362,107 +451,6 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 @media (min-width:900px){
   .deals-row{margin:0;padding:2px 2px var(--space-2)}
   .deals-row .card{flex:1 1 0;min-width:0}
-}
-
-/* ============================================================
-   CATALOG DECK  —  fanned stack of covers, click to advance
-   Cards are letter-ratio (8.5 x 11) to match the real artwork.
-   ============================================================ */
-/* width:fit-content keeps the zone hugging the deck, so the VIP sticker's
-   negative offset anchors to the card edge instead of the column edge.
-   Only shown from 900px: on a phone it would push the deals off the
-   first screen. */
-.deck-zone{position:relative;display:none;flex-direction:column;align-items:center;gap:var(--space-2);
-           width:fit-content;margin-inline:auto}
-@media(min-width:900px){
-  .deck-zone{display:flex}
-}
-.deck{
-  /* leaves room for the +46px fan offset inside the content column */
-  position:relative;width:250px;aspect-ratio:8.5/11;
-  border:0;padding:0;background:none;cursor:pointer;
-  perspective:1400px;
-}
-.deck:focus-visible{outline:3px solid var(--brand);outline-offset:14px;border-radius:var(--radius-sm)}
-
-.deck-card{
-  position:absolute;inset:0;border-radius:var(--radius-sm);overflow:hidden;
-  background:#fff;
-  transition:transform .5s cubic-bezier(.22,.8,.3,1),opacity .5s cubic-bezier(.22,.8,.3,1),
-             box-shadow .5s ease,filter .5s ease;
-  will-change:transform,opacity;
-  /* fallback for any card deeper than the four fanned slots: parked at the
-     back of the fan and invisible, so it can never sit on top of the front
-     card the way an unstyled data-pos used to */
-  transform:translate(48px,-33px) scale(.83);opacity:0;z-index:0;
-}
-.deck-card img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
-
-/* fanned resting positions — one slot per cover (4), evenly stepped so the
-   whole deck reads as four distinct pages rather than a blur at the back */
-.deck-card[data-pos="0"]{transform:none;                                       opacity:1;   z-index:4;box-shadow:0 26px 54px -18px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.7)}
-.deck-card[data-pos="1"]{transform:translate(16px,-11px) scale(.945) rotate(2.5deg);opacity:.97; z-index:3;box-shadow:0 20px 42px -15px rgba(0,0,0,.52),0 0 0 1px rgba(0,0,0,.08);filter:saturate(.94) brightness(.975)}
-.deck-card[data-pos="2"]{transform:translate(32px,-22px) scale(.89) rotate(5deg);  opacity:.93; z-index:2;box-shadow:0 16px 34px -13px rgba(0,0,0,.48),0 0 0 1px rgba(0,0,0,.08);filter:saturate(.88) brightness(.95)}
-.deck-card[data-pos="3"]{transform:translate(48px,-33px) scale(.835) rotate(7.5deg);opacity:.88; z-index:1;box-shadow:0 13px 28px -12px rgba(0,0,0,.44),0 0 0 1px rgba(0,0,0,.08);filter:saturate(.82) brightness(.925)}
-/* the outgoing card: lift, tilt right, fly off — must clear every slot */
-.deck-card.is-leaving{transform:translate(150px,10px) scale(.72) rotate(15deg);opacity:0;z-index:6}
-/* the recycled card, already teleported to the rear slot: held invisible for
-   one frame so it fades into the back of the fan instead of popping in */
-.deck-card.is-returning{opacity:0}
-/* used for the one frame where a card is teleported to the far side of the
-   fan (front card recycled to the back, or a back card staged off-screen
-   before it flies in) — without it the teleport would animate */
-.deck-card.no-anim{transition:none}
-
-.deck-ph{
-  width:100%;height:100%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:.5rem;text-align:center;padding:1.4rem;
-  background:var(--surface-sunken);
-  border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);
-}
-.deck-ph .n{font-family:var(--font-heading);font-size:3.1rem;font-weight:700;line-height:1;color:var(--brand)}
-.deck-ph .l{font-weight:700;font-size:1.14rem;color:var(--text);max-width:15ch}
-.deck-ph .f{font-size:1rem;font-weight:600;color:var(--text-muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.deck-ph .s{font-size:1rem;font-weight:600;color:var(--text-muted);opacity:.8}
-
-/* rotated VIP sticker, breaking out of the deck's corner */
-/* breaks out of the deck's TOP-left corner — the bottom-left corner
-   collides with the dots and the "View..." pill below the deck.
-   It straddles the corner rather than sitting inside it: the covers put
-   their own masthead in that top strip, and the sticker used to cover it */
-.deck-sticker{
-  position:absolute;z-index:5;left:-38px;top:-30px;
-  display:grid;place-items:center;width:96px;height:96px;border-radius:999px;
-  background:var(--deal);color:#fff;
-  transform:rotate(-14deg);
-  box-shadow:var(--shadow-md),0 0 0 4px var(--surface);
-  font-weight:600;font-size:.86rem;line-height:1.15;text-align:center;letter-spacing:.02em;
-  pointer-events:none;
-}
-.deck-sticker b{display:block;font-family:var(--font-heading);font-size:1.45rem;font-weight:700;letter-spacing:0}
-/* on narrow screens pull the sticker back inside so it isn't clipped */
-@media(max-width:560px){
-  .deck-sticker{left:-14px;top:-18px;width:78px;height:78px;font-size:.8rem}
-  .deck-sticker b{font-size:1.2rem}
-}
-
-/* dots + hint */
-.deck-dots{display:flex;gap:.5rem;align-items:center;justify-content:center}
-.deck-dots button{
-  width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;
-  display:grid;place-items:center;border-radius:999px;
-}
-.deck-dots button::before{
-  content:"";width:10px;height:10px;border-radius:999px;
-  background:rgba(0,0,0,.3);transition:all .25s ease;   /* sits on the hero photo, so not a flat grey */
-}
-.deck-dots button[aria-current="true"]::before{width:30px;background:var(--brand)}
-.deck-dots button:hover::before{background:var(--brand)}
-
-@media(prefers-reduced-motion:reduce){
-  /* cross-fade only: no rotation, no flight */
-  .deck-card:not([data-pos="0"]){transform:none;opacity:0}
-  .deck-card.is-leaving{transform:none;opacity:0}
 }
 
 /* ============================================================
@@ -1052,13 +1040,12 @@ body.drawer-open{overflow:hidden}
 <!-- ============================ HERO ============================ -->
 <main id="top">
 <section class="hero">
-  <div class="hero-bg" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="hero-grid">
+    <div class="hero-card">
 
       <div class="hero-copy">
-        <h1>You're <span class="scribble">Preapproved</span><br>on Any <span class="scribble">one or more</span> of these Items</h1>
-        <p class="lede">25 items on payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies.</p>
+        <h1>You're <span class="scribble">Preapproved</span><br>on Any <span class="scribble">one or more</span><br class="hero-br"> of these Items</h1>
+        <p class="lede">Payments matched to your pay schedule over 9 to 12 months. Pick what you want, send the list, an agent replies.</p>
         <div class="tags hero-offers">
           <span class="tag tag-brand">0% Interest</span>
           <span class="tag">VIP Special Access</span>
@@ -1068,14 +1055,19 @@ body.drawer-open{overflow:hidden}
         </div>
       </div>
 
-      <!-- catalog deck (rendered by JS; desktop only) -->
-      <div class="deck-zone">
-        <div class="deck-sticker" aria-hidden="true"><span><b>VIP</b>pricing</span></div>
-        <button class="deck" id="deck" aria-label="Catalog covers. Press Enter or use the arrow keys to see the next catalog."></button>
-        <div class="deck-dots" id="deckDots" role="group" aria-label="Choose a catalog"></div>
-        <a class="btn-link deck-jump" id="deckJump" href="#shop">View these offers</a>
-        <p class="sr-only" id="deckLive" aria-live="polite"></p>
+      <!-- WebP with a JPG fallback; phones get the half-size file -->
+      <div class="hero-photo">
+        <picture>
+          <source type="image/webp"
+                  srcset="images/hero%20image/hero-image-836.webp 836w, images/hero%20image/hero-image.webp 1672w"
+                  sizes="(min-width:1024px) 1050px, 100vw">
+          <img src="images/hero%20image/hero-image.jpg" width="1672" height="941" fetchpriority="high"
+               alt="A woman wearing Bose headphones, smiling at a Samsung Galaxy Z Flip in her hands">
+        </picture>
       </div>
+
+      <!-- the two pictured products: cards, hotspots and connecting lines (rendered by JS) -->
+      <div class="hero-picks" id="heroPicks"></div>
 
     </div>
   </div>
@@ -1299,6 +1291,24 @@ body.drawer-open{overflow:hidden}
    ============================================================ */
 const DEALS_END = "";
 const FEATURED_DEAL_IDS = ["iphone-14", "iphone-15", "galaxy-z-flip5", "ipad-10th-gen", "watch-series-9"];
+
+/* ============================================================
+   HERO PICKS  —  the two products pictured in the hero photo
+   ------------------------------------------------------------
+     id   : the item's id in CATALOG. The name, photo and weekly
+            payment on the card all come from that item. If the id
+            is not in the catalog, its card, dot and line are simply
+            left out — the hero never shows something we don't offer.
+     short: the item's name, abbreviated, for when the card is small
+     line : one short line under the name
+     dot  : where the hotspot sits on the photo, [% from left, % from top]
+     to   : where its line runs to — a point underneath the card
+   The cards themselves are placed in the CSS (.hero-pick--a / --b).
+   ============================================================ */
+const HERO_PICKS = [
+  { key:"a", id:"bose-qc-headphones", short:"Bose QuietComfort", line:"Active noise cancelling",    dot:[71.5, 30], to:[88, 9]  },
+  { key:"b", id:"galaxy-z-flip5",     short:"Galaxy Z Flip5",    line:"256GB · like-new condition", dot:[33, 62],   to:[60, 88] }
+];
 
 /* ============================================================
    2) CATALOG  —  EDIT THIS
@@ -1745,21 +1755,6 @@ const CATEGORIES = [
   { id:"coolers",   label:"Coolers & Fridges" },
   { id:"camping",   label:"Camping" },
   { id:"bundles",   label:"Bundles" }
-];
-
-/* ============================================================
-   CATALOG COVERS  —  the hero deck. Artwork is letter size (8.5 x 11).
-   Leave `src` empty to show a labelled placeholder at the same size.
-   `filter` is the category the link under the deck switches the shop to.
-   ============================================================ */
-const COVERS = [
-  /* *-card-612.webp are 612x792 web copies of the print-resolution originals
-     beside them: about 2.4x the 250px the deck shows them at, so still sharp
-     on a retina screen, at roughly 100 KB each. The originals stay on disk. */
-  { src:"images/4-hero-image/summer-exclusive-tech-card-612.webp", alt:"Summer Exclusive Tech Offers catalog cover", label:"Summer Exclusive Tech Offers", file:"catalog-1.jpg", filter:"all"    },
-  { src:"images/4-hero-image/summer-special-card-612.webp",        alt:"Summer Special — Hello Summer catalog cover", label:"Summer Special — Hello Summer", file:"catalog-2.jpg", filter:"all" },
-  { src:"images/4-hero-image/summer-bundle-1-card-612.webp",       alt:"New Summer Bundle catalog cover, page 1 of 2", label:"New Summer Bundle",             file:"catalog-3.jpg", filter:"bundles"  },
-  { src:"images/4-hero-image/summer-bundle-2-card-612.webp",       alt:"New Summer Bundle catalog cover, page 2 of 2", label:"New Summer Bundle — Page 2",    file:"catalog-4.jpg", filter:"bundles"  }
 ];
 
 const CURRENCY = "CAD";
@@ -2239,6 +2234,34 @@ document.addEventListener("keydown", e => {
   else if(pd.classList.contains("open")) closeItem();
 });
 
+/* ---------- hero: the pictured products ----------
+   Everything on a card is read from the catalog item, so the price here can
+   never drift from the price in the grid. */
+function renderHeroPicks(){
+  const picks = HERO_PICKS.filter(p => byId.has(p.id));
+  el("#heroPicks").innerHTML =
+    `<svg class="hero-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">` +
+      picks.map(p => `<line x1="${p.dot[0]}" y1="${p.dot[1]}" x2="${p.to[0]}" y2="${p.to[1]}"/>`).join("") +
+    `</svg>` +
+    picks.map(p => {
+      const it = byId.get(p.id);
+      const photo = it.image || (thumbParts(it)[0] || {}).image || "";
+      const unit = it.per ? `<span class="price-per">/${UNIT_SHORT[it.per] || it.per}</span>` : "";
+      /* the dot repeats the card's link for pointer users, so it is kept out
+         of the tab order and away from screen readers */
+      return `
+      <a class="hero-dot" href="#item/${it.id}" data-open="${it.id}" tabindex="-1" aria-hidden="true" style="left:${p.dot[0]}%;top:${p.dot[1]}%"></a>
+      <a class="hero-pick hero-pick--${p.key}" href="#item/${it.id}" data-open="${it.id}">
+        ${photo ? `<img class="hero-pick-img" src="${attr(photo)}" alt="" width="64" height="64">` : ""}
+        <span class="hero-pick-body">
+          <span class="hero-pick-name"><span class="hp-full">${attr(it.name)}</span><span class="hp-short" aria-hidden="true">${attr(p.short || it.name)}</span></span>
+          <span class="hero-pick-line">${attr(p.line)}</span>
+          <span class="hero-pick-price">${it.from ? `<span>As low as</span>` : ""}<span class="hero-pick-amt"><span class="price">${money(it.price)}</span>${unit}</span></span>
+        </span>
+      </a>`;
+    }).join("");
+}
+
 /* ---------- flash deals ----------
    The lineup is the hand-picked FEATURED_DEAL_IDS (set at the top of this
    script), always shown cheapest weekly payment first, with the prices
@@ -2361,219 +2384,6 @@ el("#leadForm").addEventListener("submit", e => {
   const { sum, weekly } = weeklyTotals();
   el("#totalField").value = money(sum) + (weekly ? " per week" : "");
 });
-
-/* ============================================================
-   CATALOG DECK
-   Order is a plain array rotation — no library, no index maths
-   scattered around. order[0] is always the front card.
-   ============================================================ */
-const deck = el("#deck"), deckDots = el("#deckDots"),
-      deckLive = el("#deckLive"), deckJump = el("#deckJump");
-let order = COVERS.map((_,i) => i);
-let swapping = false;
-
-function coverHTML(c, i){
-  // The artwork is letter-ratio, the same as the card, so object-fit has
-  // nothing to crop — object-position keeps the masthead safe if a future
-  // cover is a few pixels off. The front cover is the LCP image.
-  // decoding="sync", NOT "async": async lets the card paint before its cover
-  // has decoded, which shows a blank white card — briefly on load, and on
-  // every swap as a card is brought forward.
-  const inner = c.src
-    ? `<img src="${c.src}" alt="${c.alt}" width="612" height="792"
-            decoding="sync" ${i === 0 ? 'fetchpriority="high"' : ""}>`
-    : `<div class="deck-ph">
-         <span class="n">${i+1}</span>
-         <span class="l">${c.label}</span>
-         <span class="f">${c.file}</span>
-         <span class="s">8.5 × 11 in</span>
-       </div>`;
-  return inner;
-}
-
-/* The cards are built ONCE and then only ever have their data-pos rewritten.
-   Rebuilding the deck with innerHTML on every change (what this used to do)
-   handed the browser brand-new nodes each time, so the CSS transitions on
-   .deck-card never had an old value to animate from — every card except the
-   outgoing one teleported into place. */
-let cards = [];
-const SWAP_MS = 500;                      // must match the .deck-card transition
-
-function buildDeck(){
-  deck.innerHTML = COVERS.map((c,i) =>
-    `<div class="deck-card" data-idx="${i}">${coverHTML(c, i)}</div>`).join("");
-  cards = COVERS.map((_,i) => deck.querySelector(`[data-idx="${i}"]`));
-
-  deckDots.innerHTML = COVERS.map((c,i) =>
-    `<button type="button" data-dot="${i}" aria-label="Show ${c.label}"></button>`).join("");
-}
-
-/* place every card in its fan slot; only the front one is exposed to AT */
-function layout(){
-  order.forEach((idx,pos) => {
-    const card = cards[idx];
-    card.dataset.pos = pos;
-    if(pos){
-      card.setAttribute("aria-hidden","true");
-      card.removeAttribute("role");
-      card.removeAttribute("aria-label");
-    } else {
-      card.removeAttribute("aria-hidden");
-      card.setAttribute("role","img");
-      card.setAttribute("aria-label", COVERS[idx].alt);
-    }
-  });
-}
-
-/* dots, jump link and the live region always describe the front card */
-function syncDeckChrome(){
-  const i = order[0], front = COVERS[i];
-  deckDots.querySelectorAll("[data-dot]").forEach(b =>
-    b.setAttribute("aria-current", String(+b.dataset.dot === i)));
-
-  deckJump.dataset.filter = front.filter || "all";
-  deckJump.textContent = `View ${front.label}`;
-
-  deckLive.textContent = `Showing catalog ${i+1} of ${COVERS.length}: ${front.label}`;
-  deck.setAttribute("aria-label",
-    `${front.label}. Catalog ${i+1} of ${COVERS.length}. Press Enter or use the arrow keys for the next catalog.`);
-}
-
-function renderDeck(){ buildDeck(); layout(); syncDeckChrome(); }
-
-/* Run fn once the browser has committed the current styles, so the next
-   change transitions instead of collapsing into the same frame. The timer is
-   not belt-and-braces: rAF is paused entirely while the tab is in the
-   background, and a swap caught mid-flight there would otherwise leave
-   `swapping` true and the deck frozen for good. */
-function afterPaint(fn){
-  let done = false;
-  const run = () => { if(!done){ done = true; fn(); } };
-  requestAnimationFrame(() => requestAnimationFrame(run));
-  setTimeout(run, 60);
-}
-
-function advance(dir = 1){
-  if(swapping || COVERS.length < 2) return;
-
-  if(reduceMotion){                       // cross-fade, no flight
-    order = dir > 0 ? [...order.slice(1), order[0]]
-                    : [order[order.length-1], ...order.slice(0,-1)];
-    layout(); syncDeckChrome();
-    return;
-  }
-
-  swapping = true;
-
-  if(dir > 0){
-    // front card flies off to the right while the other three slide forward,
-    // then it is teleported (unanimated, still invisible) to the back slot
-    const leavingIdx = order[0], leaving = cards[leavingIdx];
-    leaving.classList.add("is-leaving");
-    order = [...order.slice(1), leavingIdx];
-    layout();                             // is-leaving outranks its data-pos
-    syncDeckChrome();
-    setTimeout(() => {
-      leaving.classList.add("no-anim","is-returning");
-      leaving.classList.remove("is-leaving");
-      void leaving.offsetWidth;             // commit the teleport un-animated
-      leaving.classList.remove("no-anim");
-      afterPaint(() => {                    // now let it fade into the rear slot
-        leaving.classList.remove("is-returning");
-        swapping = false;
-      });
-    }, SWAP_MS);
-  } else {
-    // the back card is staged off to the right, then flies back in on top
-    const incomingIdx = order[order.length-1], incoming = cards[incomingIdx];
-    incoming.classList.add("no-anim","is-leaving");
-    void incoming.offsetWidth;            // commit the staged position
-    incoming.classList.remove("no-anim");
-    order = [incomingIdx, ...order.slice(0,-1)];
-    layout();
-    syncDeckChrome();
-    afterPaint(() => incoming.classList.remove("is-leaving"));
-    setTimeout(() => { swapping = false; }, SWAP_MS);
-  }
-}
-
-/* dots: step through one card at a time so the fan animates the whole way
-   instead of snapping, picking whichever direction is the shorter trip */
-function jumpTo(i){
-  if(swapping || order[0] === i) return;
-
-  if(reduceMotion){
-    while(order[0] !== i) order = [...order.slice(1), order[0]];
-    layout(); syncDeckChrome();
-    return;
-  }
-
-  const steps = order.indexOf(i);
-  const dir = steps <= COVERS.length / 2 ? 1 : -1;
-  // order is updated synchronously by advance(), so re-reading it is enough
-  // to know whether we have arrived — a dropped step just reschedules itself
-  const step = () => {
-    advance(dir);
-    if(order[0] !== i) setTimeout(step, SWAP_MS + 60);
-  };
-  step();
-}
-
-deck.addEventListener("click", () => advance(1));
-deck.addEventListener("keydown", e => {
-  if(e.key === "ArrowRight" || e.key === "ArrowDown"){ e.preventDefault(); advance(1); }
-  if(e.key === "ArrowLeft"  || e.key === "ArrowUp"){   e.preventDefault(); advance(-1); }
-  // Enter/Space already fire click on a <button>
-});
-deckDots.addEventListener("click", e => {
-  const b = e.target.closest("[data-dot]");
-  if(!b) return;
-  stopAutoplay();          // don't let the timer fight a multi-step jump
-  jumpTo(+b.dataset.dot);
-  startAutoplay();
-});
-
-/* horizontal swipe on touch */
-let tx = 0, ty = 0;
-deck.addEventListener("touchstart", e => { tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
-deck.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - tx;
-  const dy = e.changedTouches[0].clientY - ty;
-  if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) advance(dx < 0 ? 1 : -1);
-}, {passive:true});
-
-/* auto-advance every 4s, looping through all covers forever (order is a
-   rotation, so it never runs out). Paused on hover/focus so it doesn't
-   fight a visitor mid-interaction, and while the tab is hidden. */
-let autoplayTimer = null;
-function startAutoplay(){
-  if(!deckBuilt || reduceMotion || COVERS.length < 2) return;
-  stopAutoplay();
-  autoplayTimer = setInterval(() => advance(1), 4000);
-}
-function stopAutoplay(){
-  if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
-}
-deck.addEventListener("mouseenter", stopAutoplay);
-deck.addEventListener("mouseleave", startAutoplay);
-deck.addEventListener("focusin", stopAutoplay);
-deck.addEventListener("focusout", startAutoplay);
-document.addEventListener("visibilitychange", () => {
-  if(document.hidden) stopAutoplay(); else startAutoplay();
-});
-
-/* The deck is only shown from 900px wide, so it is only built — and its four
-   cover images only downloaded — once the screen is that wide. A phone never
-   fetches them. */
-const deckWide = window.matchMedia("(min-width:900px)");
-let deckBuilt = false;
-function ensureDeck(){
-  if(deckBuilt || !deckWide.matches) return;
-  deckBuilt = true;
-  renderDeck();
-  startAutoplay();
-}
-deckWide.addEventListener("change", ensureDeck);
 
 /* ============================================================
    PRODUCT DETAIL
@@ -2783,11 +2593,12 @@ function closeItem(){
   hideItem();
 }
 
-/* Anywhere on a card opens its product. The quick-add button is not part of
+/* Anywhere on a card opens its product, and so do the hero's product cards
+   and hotspots. The quick-add button is not part of
    the card's link, so pressing it never reaches this handler. A modified
    click (new tab, new window) is left to the browser. */
 document.addEventListener("click", e => {
-  const link = e.target.closest("a.card-link");
+  const link = e.target.closest("a[data-open]");
   if(!link || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
   openItem(link.dataset.open);
@@ -2839,9 +2650,6 @@ el("#chips").addEventListener("click", e => {
   if(!chip) return;
   setFilter(chip.dataset.cat);
 });
-/* The link under the hero deck jumps to the shop (a plain #shop link) and
-   picks the category that matches the cover on show. */
-deckJump.addEventListener("click", () => setFilter(deckJump.dataset.filter));
 
 /* ---------- scroll to top ---------- */
 const toTop = el("#toTop");
@@ -2851,7 +2659,7 @@ syncToTop();
 toTop.addEventListener("click", () => window.scrollTo({ top:0, behavior: reduceMotion ? "auto" : "smooth" }));
 
 /* ---------- go ---------- */
-ensureDeck();
+renderHeroPicks();
 renderDeals();
 startDealsTimer();
 renderChips();
